@@ -23,28 +23,31 @@ lines = []
 # text = []
 i = 0
 flist = sys.argv[1] # receives the target directory from the CLI argument
-flist1 = os.listdir(flist) # Changes the present working directory to the one from the CLI argument
-os.chdir(sys.argv[1])
+flist1 = os.listdir(flist)
+os.chdir(sys.argv[1]) # Changes the present working directory to the one from the CLI argument
 for fname in flist1:
     if 'health' not in str(fname):
         with open(fname, "r", encoding="ISO-8859-1") as file:
-            # print('\r', "File name is ", fname)
+            print('\r', "File name is ", fname)
             # wait = input('waiting for ENTER')
-            text = file.read()
+            # lines = file.read()
+            # text = file.read()
             # lines = text.split('\r')
-            lines = text
-            for i in range(len(lines)):  # loop through all indexes in the "lines" list
+            # lines = text
+            for line in file:
+#            for i in range(len(lines)):  # loop through all indexes in the "lines" list
+                # lines = line.split('\r')
                 for y in terms:
         #            y = str(y)
         #            y = y.lower()
-                    if y in str(lines[i]):
-                        found.append(lines[i]) # add the found lines to the FOUND list
-                        pprint.pprint(lines[i])
-                i = i + 1
+                    if y in line:
+                        found.append(line) # add the found lines to the FOUND list
+                        # print(line)
+#                i = i + 1
 
-# text = '\r'.join(found)
-pprint.pprint(found)
-
+text = '\n'.join(found)
+pprint.pprint(text)
+# print(text)
 # TODO decide what to do with the output = format it better, output it to a file?
 # TODO find a way to page the output on the screen
 
