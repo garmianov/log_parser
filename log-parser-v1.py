@@ -23,11 +23,13 @@ terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Pi
 # for arg in sys.argv: # read the argument from the command line
 #     print(arg)
 found=[]
+lines = []
+text = []
 
-flist = sys.argv[1]
+flist = sys.argv[1] # receives the target directory from the CLI argument
 # print("flsit is ", flist)
 # flist = os.system(sys.argv[2])
-flist1 = os.listdir(flist)
+flist1 = os.listdir(flist) # Changes the present working directory to the one from the CLI argument
 # print("Argument is ", flist1)
 # wait = input('waiting for ENTER')
 os.chdir(sys.argv[1])
@@ -43,13 +45,14 @@ for fname in flist1:
         for y in terms:
 #            y = str(y)
 #            y = y.lower()
-            if y in lines[i]:
+            if y in str(lines[i]):
                 found.append(lines[i]) # add the found lines to the FOUND list
                 # pprint.pprint(lines[i])
                 # else:
                 #     lines[i] = '* ' + lines[i] # add star to each string in "lines" list
 #    text = '\r '.join(found)
     pprint.pprint(found)
+    file.close()
 # TODO decide what to do with the output = format it better, output it to a file?
 # TODO find a way to page the output on the screen
 
