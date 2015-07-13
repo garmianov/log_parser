@@ -21,23 +21,24 @@ terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Pi
 found=[]
 lines = []
 text = []
-i = 0
 flist = sys.argv[1] # receives the target directory from the CLI argument
 flist1 = os.listdir(flist)
 os.chdir(sys.argv[1]) # Changes the present working directory to the one from the CLI argument
-for fname in flist1:
-    if 'health' not in str(fname):
-        with open(fname, "r", encoding="ISO-8859-1") as file:
-            print('\r', "File name is ", fname)
-            for line in file:
-                for y in terms:
-                    if y in line:
-                        found.append(line) # add the found lines to the FOUND list
+with open("sresults", "w") as ffound:
+    for fname in flist1:
+        if 'health' not in str(fname):
+            with open(fname, "r", encoding="ISO-8859-1") as file:
+                print('\r', "File name is ", fname)
+                for line in file:
+                    for y in terms:
+                        if y in line:
+                            ffound.write(line)
+                            found.append(line) # add the found lines to the FOUND list
 text = '\n'.join(found)
 # print(text)
 
+
+
 # TODO decide what to do with the output = format it better, output it to a file?
 # TODO find a way to page the output on the screen
-
-
 # pyperclip.copy(text)
