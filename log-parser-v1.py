@@ -48,4 +48,5 @@ pprint.pprint(found)
 # TODO decide what to do with the output = format it better, output it to a file?
 # TODO find a way to page the output on the screen
 
+
 # pyperclip.copy(text)
