@@ -13,9 +13,8 @@ import pprint
 
 
 terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Ping overdue',
-         'ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:',
-         'rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost',
-         'Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate', 'ERROR', 'error']
+         'ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:','rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost',
+         'Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate']
 
 # text = pyperclip.paste()
 found=[]
@@ -34,8 +33,9 @@ with open("sresults", "w") as ffound:
                         if y in line:
                             ffound.write(line)
                             found.append(line) # add the found lines to the FOUND list
+ffound.close()
 text = '\n'.join(found)
-# print(text)
+print(text)
 
 
 
