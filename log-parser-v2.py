@@ -4,8 +4,6 @@
 
 # ''' should be used for the log parsing script.'''
 
-# TODO: replace pyperclip references with controls to open and read log files.
-
 # import pyperclip
 import os
 import sys
@@ -17,6 +15,9 @@ text = []
 flist = sys.argv[1] # receives the target directory from the CLI argument
 flist1 = os.listdir(flist)
 os.chdir(sys.argv[1]) # Changes the present working directory to the one from the CLI argument
+if os.path.exists("./sresults"): #check whether sresults exists and delete it so it is not mixing results
+    os.remove("./sresults")
+    print("Removing sresults file")
 
 def searchargv(terms, flist1, found):
     with open("sresults", "w") as ffound:
@@ -46,7 +47,7 @@ def searchterms(terms, flist1, found):
     ffound.close()
     text = '\n'.join(found)
     print(text)
-    
+
 if len(sys.argv) > 2:
     terms = sys.argv[2]
     searchargv(terms, flist1, found)
