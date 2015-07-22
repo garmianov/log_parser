@@ -61,6 +61,7 @@ else:
 # TODO Investigate Camera connection quality
 # TODO Investigate Decoder errors
 # TODO Check for Calibration resets
+# TODO Figure out how to do date based correlations
 # TODO decide what to do with the output = format it better, output it to a file?
 # TODO find a way to page the output on the screen
 # pyperclip.copy(text)
