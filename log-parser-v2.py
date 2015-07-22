@@ -56,10 +56,11 @@ else:
     searchterms(terms, flist1, found)
 # text = pyperclip.paste()
 
-
-
-
-
+# TODO Investigate how many times the Rialt has rebooted.
+# TODO Investigate the time between the Rialto lost connection and the reboot
+# TODO Investigate Camera connection quality
+# TODO Investigate Decoder errors
+# TODO Check for Calibration resets
 # TODO decide what to do with the output = format it better, output it to a file?
 # TODO find a way to page the output on the screen
 # pyperclip.copy(text)
