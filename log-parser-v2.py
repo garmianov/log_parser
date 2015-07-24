@@ -19,6 +19,11 @@ if os.path.exists("./sresults"): #check whether sresults exists and delete it so
     os.remove("./sresults")
     print("Removing sresults file")
 
+if os.path.exists("./reboots.txt"): #check whether sresults exists and delete it so it is not mixing results
+    os.remove("./reboots.txt")
+    print("Removing reboots.txt file")
+
+
 def searchargv(terms, flist1, found):
     with open("sresults", "w") as ffound:
         for fname in flist1:
@@ -48,15 +53,31 @@ def searchterms(terms, flist1, found):
     text = '\n'.join(found)
     print(text)
 
-if len(sys.argv) > 2:
-    terms = sys.argv[2]
-    searchargv(terms, flist1, found)
-else:
-    terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Ping overdue','ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:','rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost','Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate']
-    searchterms(terms, flist1, found)
+def reboots(flist1, found):
+    with open("reboots.txt", "w") as ffound:
+        for fname in flist1:
+             if 'health' not in str(fname):
+                with open(fname, "r", encoding="ISO-8859-1") as file:
+                    print('\r', "File name is ", fname)
+                    for line in file:
+                        if "Restart" in line:
+                           ffound.write(line)
+                           found.append(line) # add the found lines to the FOUND list
+    ffound.close()
+    text = '\n'.join(found)
+    print(text)
+
+reboots(flist1, found)
+
+# if len(sys.argv) > 2:
+ #   terms = sys.argv[2]
+ #   searchargv(terms, flist1, found)
+# else:
+ #   terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Ping overdue','ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:','rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost','Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate']
+  #  searchterms(terms, flist1, found)
 # text = pyperclip.paste()
 
-# TODO Investigate how many times the Rialt has rebooted.
+# TODO Investigate how many times the Rialto has rebooted.
 # TODO Investigate the time between the Rialto lost connection and the reboot
 # TODO Investigate Camera connection quality
 # TODO Investigate Decoder errors
