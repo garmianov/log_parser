@@ -58,14 +58,16 @@ def reboots(flist1, found):
         for fname in flist1:
              if 'health' not in str(fname):
                 with open(fname, "r", encoding="ISO-8859-1") as file:
-                    print('\r', "File name is ", fname)
+                 #   print('\r', "File name is ", fname)
                     for line in file:
                         if "Restart" in line:
                            ffound.write(line)
                            found.append(line) # add the found lines to the FOUND list
+    print("found ",len(found),"reboots in the log files")
     ffound.close()
     text = '\n'.join(found)
-    print(text)
+    print(len(text))
+#    print(text)
 
 reboots(flist1, found)
 
