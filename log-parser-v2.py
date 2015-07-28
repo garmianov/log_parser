@@ -54,6 +54,7 @@ def searchterms(terms, flist1, found):
     print(text)
 
 def reboots(flist1, found):
+  #  date_line = []
     with open("reboots.txt", "w") as ffound:
         for fname in flist1:
              if 'health' not in str(fname):
@@ -63,6 +64,8 @@ def reboots(flist1, found):
                         if "Restart" in line:
                            ffound.write(line)
                            found.append(line) # add the found lines to the FOUND list
+                           date_line =  line.split(' ')
+                           print("Rialto rebooted on the following dates and times: ", date_line[0], date_line[1])
     print("found ",len(found),"reboots in the log files")
     ffound.close()
     text = '\n'.join(found)
