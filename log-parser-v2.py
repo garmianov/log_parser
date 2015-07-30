@@ -14,7 +14,7 @@ lines = []
 text = []
 rtsp_found=[]
 
-flist = sys.argv[1] # receives the target directory from the CLI argument
+# flist = sys.argv[1] # receives the target directory from the CLI argument
 
 os.chdir(sys.argv[1]) # Changes the present working directory to the one from the CLI argument
 
@@ -31,7 +31,7 @@ if os.path.exists("./rtsp_connections.txt"): #check whether sresults exists and 
     os.remove("./rtsp_connections.txt")
     print("Removing rtsp_connections.txt file")
 
-# flist1 = os.listdir(flist)
+''' Creates list of files in the directory form argv[1]'''
 flist1 = os.listdir(sys.argv[1])
 
 def searchargv(terms, flist1, found):
