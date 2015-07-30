@@ -12,10 +12,12 @@ import pprint
 found=[]
 lines = []
 text = []
+rtsp_found=[]
 
 flist = sys.argv[1] # receives the target directory from the CLI argument
-flist1 = os.listdir(flist)
+
 os.chdir(sys.argv[1]) # Changes the present working directory to the one from the CLI argument
+
 if os.path.exists("./sresults"): #check whether sresults exists and delete it so it is not mixing results
     os.remove("./sresults")
     print("Removing sresults file")
@@ -24,6 +26,13 @@ if os.path.exists("./reboots.txt"): #check whether sresults exists and delete it
     os.remove("./reboots.txt")
     print("Removing reboots.txt file")
 
+
+if os.path.exists("./rtsp_connections.txt"): #check whether sresults exists and delete it so it is not mixing results
+    os.remove("./rtsp_connections.txt")
+    print("Removing rtsp_connections.txt file")
+
+# flist1 = os.listdir(flist)
+flist1 = os.listdir(sys.argv[1])
 
 def searchargv(terms, flist1, found):
     with open("sresults", "w") as ffound:
@@ -82,27 +91,27 @@ def reboots(flist1, found):
         print("date and time of the reboot: ", date_value[i])
     print(len(date_value))
 
-def connect_rtsp(flist1, found):
+def connect_rtsp(flist1, rtsp_found):
   #  date_line = []
     date_value = []
-    with open("reboots.txt", "w") as ffound:
+    with open("rtsp_connections.txt", "w") as ffound1:
         for fname in flist1:
              if 'health' not in str(fname):
                 with open(fname, "r", encoding="ISO-8859-1") as file:
                  #   print('\r', "File name is ", fname)
                     for line in file:
                         if "connecting to rtsp" in line:
-                           ffound.write(line)
+                           ffound1.write(line)
                            date_line =  line.split(' ')
                            date_v1 = (date_line[0] + " " + date_line[1])
                            if date_v1 not in date_value:
                             date_value.append(date_v1)
-                            found.append(line) # add the found lines to the FOUND list
+                            rtsp_found.append(line) # add the rtsp_found lines to the rtsp_found list
 #                            print("Rialto rebooted on the following dates and times: ", date_v1)
-    print("found ",len(found),"rtsp connections in the log files")
+    print("found ",len(rtsp_found),"rtsp connections in the log files")
     date_value.sort()
-    ffound.close()
-    text = '\n'.join(found)
+    ffound1.close()
+    text = '\n'.join(rtsp_found)
 #    print(len(text))
 #    print(text)
 #    date_v = '\n'.join(date_value)
@@ -110,9 +119,9 @@ def connect_rtsp(flist1, found):
         print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
 
-# reboots(flist1, found)
+reboots(flist1, found)
 
-connect_rtsp(flist1, found)
+connect_rtsp(flist1, rtsp_found)
 
 # if len(sys.argv) > 2:
  #   terms = sys.argv[2]
@@ -122,8 +131,8 @@ connect_rtsp(flist1, found)
   #  searchterms(terms, flist1, found)
 # text = pyperclip.paste()
 
-# TODO Investigate how many times the Rialto has rebooted.
 # TODO Investigate the time between the Rialto lost connection and the reboot
+# TODO Use dictionaries for data correlations
 # TODO Investigate Camera connection quality
 # TODO Investigate Decoder errors
 # TODO Check for Calibration resets
