@@ -13,7 +13,7 @@ found=[]
 lines = []
 text = []
 rtsp_found=[]
-
+date_dic= {}
 # flist = sys.argv[1] # receives the target directory from the CLI argument
 
 os.chdir(sys.argv[1]) # Changes the present working directory to the one from the CLI argument
@@ -95,20 +95,31 @@ def connect_rtsp(flist1, rtsp_found):
   #  date_line = []
     date_value = []
     with open("rtsp_connections.txt", "w") as ffound1:
+
         for fname in flist1:
+
              if 'health' not in str(fname):
+
                 with open(fname, "r", encoding="ISO-8859-1") as file:
                  #   print('\r', "File name is ", fname)
+
                     for line in file:
+
                         if "connecting to rtsp" in line:
-                           ffound1.write(line)
-                           date_line =  line.split(' ')
-                           date_v1 = (date_line[0] + " " + date_line[1])
-                           if date_v1 not in date_value:
-                            date_value.append(date_v1)
-                            rtsp_found.append(line) # add the rtsp_found lines to the rtsp_found list
-#                            print("Rialto rebooted on the following dates and times: ", date_v1)
-    print("found ",len(rtsp_found),"rtsp connections in the log files")
+                            ffound1.write(line)
+                            date_line =  line.split(' ')
+                            date_v1 = (date_line[0] + " " + date_line[1])
+
+                            if date_v1 not in date_value:
+                                date_value.append(date_v1)
+                                rtsp_found.append(line) # add the rtsp_found lines to the rtsp_found list
+                                date_dic.setdefault(log_date, 0)
+                                date_dic.setdefault(log_time, 0)
+                                date_dic[log_date] = date_line[0]
+                                date_dic[log_time] = date_line[1]
+
+
+    print("found ",len(rtsp_found), " rtsp connections in the log files")
     date_value.sort()
     ffound1.close()
     text = '\n'.join(rtsp_found)
