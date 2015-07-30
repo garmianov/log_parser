@@ -13,7 +13,7 @@ found=[]
 lines = []
 text = []
 rtsp_found=[]
-date_dic= {}
+datedic= {}
 # flist = sys.argv[1] # receives the target directory from the CLI argument
 
 os.chdir(sys.argv[1]) # Changes the present working directory to the one from the CLI argument
@@ -91,7 +91,7 @@ def reboots(flist1, found):
         print("date and time of the reboot: ", date_value[i])
     print(len(date_value))
 
-def connect_rtsp(flist1, rtsp_found):
+def connect_rtsp(flist1, rtsp_found, datedic):
   #  date_line = []
     date_value = []
     with open("rtsp_connections.txt", "w") as ffound1:
@@ -113,10 +113,8 @@ def connect_rtsp(flist1, rtsp_found):
                             if date_v1 not in date_value:
                                 date_value.append(date_v1)
                                 rtsp_found.append(line) # add the rtsp_found lines to the rtsp_found list
-                                date_dic.setdefault(log_date, 0)
-                                date_dic.setdefault(log_time, 0)
-                                date_dic[log_date] = date_line[0]
-                                date_dic[log_time] = date_line[1]
+                                datedic.setdefault('logdate', []).append(date_line[0])
+                                datedic.setdefault('logtime', []).append(date_line[1])
 
 
     print("found ",len(rtsp_found), " rtsp connections in the log files")
@@ -129,10 +127,11 @@ def connect_rtsp(flist1, rtsp_found):
     for i in range(len(date_value)):
         print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
+    print(datedic)
 
 reboots(flist1, found)
 
-connect_rtsp(flist1, rtsp_found)
+connect_rtsp(flist1, rtsp_found, datedic)
 
 # if len(sys.argv) > 2:
  #   terms = sys.argv[2]
