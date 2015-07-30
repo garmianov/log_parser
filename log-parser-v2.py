@@ -12,6 +12,7 @@ import pprint
 found=[]
 lines = []
 text = []
+
 flist = sys.argv[1] # receives the target directory from the CLI argument
 flist1 = os.listdir(flist)
 os.chdir(sys.argv[1]) # Changes the present working directory to the one from the CLI argument
@@ -55,6 +56,7 @@ def searchterms(terms, flist1, found):
 
 def reboots(flist1, found):
   #  date_line = []
+    date_value = []
     with open("reboots.txt", "w") as ffound:
         for fname in flist1:
              if 'health' not in str(fname):
@@ -63,14 +65,22 @@ def reboots(flist1, found):
                     for line in file:
                         if "Restart" in line:
                            ffound.write(line)
-                           found.append(line) # add the found lines to the FOUND list
                            date_line =  line.split(' ')
-                           print("Rialto rebooted on the following dates and times: ", date_line[0], date_line[1])
+                           date_v1 = (date_line[0] + " " + date_line[1])
+                           if date_v1 not in date_value:
+                            date_value.append(date_v1)
+                            found.append(line) # add the found lines to the FOUND list
+                            print("Rialto rebooted on the following dates and times: ", date_v1)
     print("found ",len(found),"reboots in the log files")
+    date_value.sort()
     ffound.close()
     text = '\n'.join(found)
     print(len(text))
 #    print(text)
+#    date_v = '\n'.join(date_value)
+    for i in range(len(date_value)):
+        print("date and time of the reboot: ", date_value[i])
+    print(len(date_value))
 
 reboots(flist1, found)
 
