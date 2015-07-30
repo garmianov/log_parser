@@ -70,19 +70,49 @@ def reboots(flist1, found):
                            if date_v1 not in date_value:
                             date_value.append(date_v1)
                             found.append(line) # add the found lines to the FOUND list
-                            print("Rialto rebooted on the following dates and times: ", date_v1)
+#                            print("Rialto rebooted on the following dates and times: ", date_v1)
     print("found ",len(found),"reboots in the log files")
     date_value.sort()
     ffound.close()
     text = '\n'.join(found)
-    print(len(text))
+#    print(len(text))
 #    print(text)
 #    date_v = '\n'.join(date_value)
     for i in range(len(date_value)):
         print("date and time of the reboot: ", date_value[i])
     print(len(date_value))
 
-reboots(flist1, found)
+def connect_rtsp(flist1, found):
+  #  date_line = []
+    date_value = []
+    with open("reboots.txt", "w") as ffound:
+        for fname in flist1:
+             if 'health' not in str(fname):
+                with open(fname, "r", encoding="ISO-8859-1") as file:
+                 #   print('\r', "File name is ", fname)
+                    for line in file:
+                        if "connecting to rtsp" in line:
+                           ffound.write(line)
+                           date_line =  line.split(' ')
+                           date_v1 = (date_line[0] + " " + date_line[1])
+                           if date_v1 not in date_value:
+                            date_value.append(date_v1)
+                            found.append(line) # add the found lines to the FOUND list
+#                            print("Rialto rebooted on the following dates and times: ", date_v1)
+    print("found ",len(found),"rtsp connections in the log files")
+    date_value.sort()
+    ffound.close()
+    text = '\n'.join(found)
+#    print(len(text))
+#    print(text)
+#    date_v = '\n'.join(date_value)
+    for i in range(len(date_value)):
+        print("date and time of the connection/re-connection: ", date_value[i])
+    print(len(date_value))
+
+# reboots(flist1, found)
+
+connect_rtsp(flist1, found)
 
 # if len(sys.argv) > 2:
  #   terms = sys.argv[2]
