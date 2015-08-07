@@ -1,0 +1,1 @@
+can use VARIABLE.hour; VAARIABLE.minute; VARIABLE.second
