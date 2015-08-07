@@ -8,32 +8,44 @@
 import os
 import sys
 import pprint
+import datetime
 
-found=[]
+found = []
 lines = []
 text = []
-rtsp_found=[]
-datedic= {}
+rtsp_found = []
+datedic = {}
 # flist = sys.argv[1] # receives the target directory from the CLI argument
 
-os.chdir(sys.argv[1]) # Changes the present working directory to the one from the CLI argument
+os.chdir(sys.argv[1])  # Changes the present working directory to the one from the CLI argument
 
-if os.path.exists("./sresults"): #check whether sresults exists and delete it so it is not mixing results
+if os.path.exists("./sresults"):  # check whether sresults exists and delete it so it is not mixing results
     os.remove("./sresults")
     print("Removing sresults file")
 
-if os.path.exists("./reboots.txt"): #check whether sresults exists and delete it so it is not mixing results
+if os.path.exists("./reboots.txt"):  # check whether sresults exists and delete it so it is not mixing results
     os.remove("./reboots.txt")
     print("Removing reboots.txt file")
 
-
-if os.path.exists("./rtsp_connections.txt"): #check whether sresults exists and delete it so it is not mixing results
+if os.path.exists("./rtsp_connections.txt"):  # check whether sresults exists and delete it so it is not mixing results
     os.remove("./rtsp_connections.txt")
     print("Removing rtsp_connections.txt file")
 
 ''' Creates list of files in the directory form argv[1]'''
 flist1 = os.listdir(sys.argv[1])
 
+def main():
+    reboots(flist1, found)
+    connect_rtsp(flist1, rtsp_found, datedic)
+    # if len(sys.argv) > 2:
+    # terms = sys.argv[2]
+    #   searchargv(terms, flist1, found)
+    # else:
+    #   terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Ping overdue','ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:','rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost','Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate']
+    #  searchterms(terms, flist1, found)
+    # text = pyperclip.paste()
+
+''' Search using term from the command line arguments'''
 def searchargv(terms, flist1, found):
     with open("sresults", "w") as ffound:
         for fname in flist1:
@@ -43,11 +55,13 @@ def searchargv(terms, flist1, found):
                     for line in file:
                         if terms in line:
                             ffound.write(line)
-                            found.append(line) # add the found lines to the FOUND list
+                            found.append(line)  # add the found lines to the FOUND list
     ffound.close()
     text = '\n'.join(found)
     print(text)
 
+
+''' Search using terms from the terms variable above '''
 def searchterms(terms, flist1, found):
     with open("sresults", "w") as ffound:
         for fname in flist1:
@@ -58,88 +72,80 @@ def searchterms(terms, flist1, found):
                         for y in terms:
                             if y in line:
                                 ffound.write(line)
-                                found.append(line) # add the found lines to the FOUND list
+                                found.append(line)  # add the found lines to the FOUND list
     ffound.close()
     text = '\n'.join(found)
     print(text)
 
+''' Search for reboots entries '''
 def reboots(flist1, found):
-  #  date_line = []
+    # date_line = []
     date_value = []
     with open("reboots.txt", "w") as ffound:
         for fname in flist1:
-             if 'health' not in str(fname):
+            if 'health' not in str(fname):
                 with open(fname, "r", encoding="ISO-8859-1") as file:
-                 #   print('\r', "File name is ", fname)
+                    #   print('\r', "File name is ", fname)
                     for line in file:
                         if "Restart" in line:
-                           ffound.write(line)
-                           date_line =  line.split(' ')
-                           date_v1 = (date_line[0] + " " + date_line[1])
-                           if date_v1 not in date_value:
-                            date_value.append(date_v1)
-                            found.append(line) # add the found lines to the FOUND list
-#                            print("Rialto rebooted on the following dates and times: ", date_v1)
-    print("found ",len(found),"reboots in the log files")
+                            ffound.write(line)
+                            date_line = line.split(' ')
+                            date_v1 = (date_line[0] + " " + date_line[1])
+                            if date_v1 not in date_value:
+                                date_value.append(date_v1)
+                                found.append(line)  # add the found lines to the FOUND list
+                            #   print("Rialto rebooted on the following dates and times: ", date_v1)
+    print("found ", len(found), "reboots in the log files")
     date_value.sort()
     ffound.close()
     text = '\n'.join(found)
-#    print(len(text))
-#    print(text)
-#    date_v = '\n'.join(date_value)
+    #    print(len(text))
+    #    print(text)
+    #    date_v = '\n'.join(date_value)
     for i in range(len(date_value)):
         print("date and time of the reboot: ", date_value[i])
     print(len(date_value))
 
+'''Search for rtsp connections'''
 def connect_rtsp(flist1, rtsp_found, datedic):
-  #  date_line = []
+    # date_line = []
     date_value = []
     with open("rtsp_connections.txt", "w") as ffound1:
 
         for fname in flist1:
 
-             if 'health' not in str(fname):
+            if 'health' not in str(fname):
 
                 with open(fname, "r", encoding="ISO-8859-1") as file:
-                 #   print('\r', "File name is ", fname)
+                    #   print('\r', "File name is ", fname)
 
                     for line in file:
 
                         if "connecting to rtsp" in line:
                             ffound1.write(line)
-                            date_line =  line.split(' ')
+                            date_line = line.split(' ')
                             date_v1 = (date_line[0] + " " + date_line[1])
 
                             if date_v1 not in date_value:
                                 date_value.append(date_v1)
-                                rtsp_found.append(line) # add the rtsp_found lines to the rtsp_found list
-                                datedic.setdefault('logdate', []).append(date_line[0])
-                                datedic.setdefault('logtime', []).append(date_line[1])
+                                rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
+                                datedic.setdefault(date_v1, []).append(date_line[-1])
+                              #  datedic.setdefault('logdate', []).append(date_v1)
+                              #  datedic.setdefault('logtime', []).append(date_line[1])
 
-
-    print("found ",len(rtsp_found), " rtsp connections in the log files")
+    print("found ", len(rtsp_found), " rtsp connections in the log files")
     date_value.sort()
     ffound1.close()
-    text = '\n'.join(rtsp_found)
-#    print(len(text))
-#    print(text)
-#    date_v = '\n'.join(date_value)
+    # text = '\n'.join(rtsp_found)
+    #    print(len(text))
+    #    print(text)
+    #    date_v = '\n'.join(date_value)
     for i in range(len(date_value)):
         print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
-    print(datedic)
+    pprint.pprint(datedic)
 
-reboots(flist1, found)
-
-connect_rtsp(flist1, rtsp_found, datedic)
-
-# if len(sys.argv) > 2:
- #   terms = sys.argv[2]
- #   searchargv(terms, flist1, found)
-# else:
- #   terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Ping overdue','ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:','rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost','Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate']
-  #  searchterms(terms, flist1, found)
-# text = pyperclip.paste()
+if__name__== "__main__": main()
 
 # TODO Investigate the time between the Rialto lost connection and the reboot
 # TODO Use dictionaries for data correlations
