@@ -1,1 +1,8 @@
 can use VARIABLE.hour; VAARIABLE.minute; VARIABLE.second
+
+I can use sqlite database for storing lines based on time stamps. 
+
+Then can use the time-stamps keys to do correlation of events.
+
+TODO Will need a way to calculate delta from the time-stamps.
+
