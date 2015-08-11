@@ -148,13 +148,15 @@ def connect_rtsp(flist1, rtsp_found, datedic):
     for i in range(len(date_value)):
         print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
-    pprint.pprint(datedic)
+#    pprint.pprint(datedic)
 
 if __name__ == "__main__": main()
 
 # TODO Investigate the time between the Rialto lost connection and the reboot
 # TODO Use dictionaries for data correlations
 # TODO Investigate Camera connection quality
+# TODO Correlation between date-time of reboots and rtsp connections
+# TODO Determine whether the rtsp connection is a result of lost connection or reboot
 # TODO Investigate Decoder errors
 # TODO Check for Calibration resets
 # TODO Figure out how to do date based correlations
