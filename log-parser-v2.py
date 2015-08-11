@@ -132,8 +132,13 @@ def connect_rtsp(flist1, rtsp_found, datedic):
                                 datedic.setdefault(date_v1, []).append(date_line[-1])
                               #  datedic.setdefault('logdate', []).append(date_v1)
                               #  datedic.setdefault('logtime', []).append(date_line[1])
+#                        else:
+#                            print("No RTSP connection requests. This is Analog Rialto")
 
     print("found ", len(rtsp_found), " rtsp connections in the log files")
+    if len(rtsp_found) == 0:
+        print("This must be an Analog Rialto", '\n')
+
     date_value.sort()
     ffound1.close()
     # text = '\n'.join(rtsp_found)
@@ -145,7 +150,7 @@ def connect_rtsp(flist1, rtsp_found, datedic):
     print(len(date_value))
     pprint.pprint(datedic)
 
-if__name__== "__main__": main()
+if __name__ == "__main__": main()
 
 # TODO Investigate the time between the Rialto lost connection and the reboot
 # TODO Use dictionaries for data correlations
