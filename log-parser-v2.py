@@ -34,6 +34,14 @@ if os.path.exists("./rtsp_connections.txt"):  # check whether sresults exists an
 ''' Creates list of files in the directory form argv[1]'''
 flist1 = os.listdir(sys.argv[1])
 
+''' Dictionary to be used for log parsing (not sure yet how)'''
+DIRECTIVE_MAP = {
+                 '%t': 'time_stamp',
+                 '%h': 'host_name',
+                 '%m': 'message',
+                }
+
+''' Main function which at the moment calls pre-defined searches'''
 def main():
     reboots(flist1, found)
     connect_rtsp(flist1, rtsp_found, datedic)
@@ -149,6 +157,20 @@ def connect_rtsp(flist1, rtsp_found, datedic):
         print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
 #    pprint.pprint(datedic)
+
+class LogLineGenerator:
+    def __init__(self, log_format=None, log_dir='flist1'):
+        #Standard log format "%t, %h:, %m
+        if not log_format:
+            self.format_string = '%t %h %m'
+        else:
+            self.format_string = log_format
+        self.log_dir = flist1
+        self.re_tsquote = re.compile(r'(\[|\])')
+        self.field_list = []
+        for directive in self.format_string.split(''):
+            self.field_list.append(DIRRECTIVE_MAP[directive])
+
 
 if __name__ == "__main__": main()
 
