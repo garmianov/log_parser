@@ -1,4 +1,4 @@
-#!python
+#!/bin/python3
 
 # paste-split.py - Adds Wikipedia bullet points to the start of each line of text in the clipboard
 
@@ -10,11 +10,14 @@ import sys
 import pprint
 import datetime
 
+'''defining variables'''
 found = []
 lines = []
 text = []
 rtsp_found = []
 datedic = {}
+exception_found = []
+
 # flist = sys.argv[1] # receives the target directory from the CLI argument
 
 os.chdir(sys.argv[1])  # Changes the present working directory to the one from the CLI argument
@@ -26,6 +29,10 @@ if os.path.exists("./sresults"):  # check whether sresults exists and delete it 
 if os.path.exists("./reboots.txt"):  # check whether sresults exists and delete it so it is not mixing results
     os.remove("./reboots.txt")
     print("Removing reboots.txt file")
+
+if os.path.exists("./exceptions.txt"):  # check whether sresults exists and delete it so it is not mixing results
+    os.remove("./exceptions.txt")
+    print("Removing exceptions.txt file")
 
 if os.path.exists("./rtsp_connections.txt"):  # check whether sresults exists and delete it so it is not mixing results
     os.remove("./rtsp_connections.txt")
@@ -45,12 +52,13 @@ DIRECTIVE_MAP = {
 def main():
     reboots(flist1, found)
     connect_rtsp(flist1, rtsp_found, datedic)
+    exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
-    # terms = sys.argv[2]
+    #   terms = sys.argv[2]
     #   searchargv(terms, flist1, found)
     # else:
     #   terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Ping overdue','ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:','rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost','Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate']
-    #  searchterms(terms, flist1, found)
+    # searchterms(terms, flist1, found)
     # text = pyperclip.paste()
 
 ''' Search using term from the command line arguments'''
@@ -119,21 +127,15 @@ def connect_rtsp(flist1, rtsp_found, datedic):
     # date_line = []
     date_value = []
     with open("rtsp_connections.txt", "w") as ffound1:
-
         for fname in flist1:
-
             if 'health' not in str(fname):
-
                 with open(fname, "r", encoding="ISO-8859-1") as file:
                     #   print('\r', "File name is ", fname)
-
                     for line in file:
-
                         if "connecting to rtsp" in line:
                             ffound1.write(line)
                             date_line = line.split(' ')
                             date_v1 = (date_line[0] + " " + date_line[1])
-
                             if date_v1 not in date_value:
                                 date_value.append(date_v1)
                                 rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
@@ -142,36 +144,57 @@ def connect_rtsp(flist1, rtsp_found, datedic):
                               #  datedic.setdefault('logtime', []).append(date_line[1])
 #                        else:
 #                            print("No RTSP connection requests. This is Analog Rialto")
-
     print("found ", len(rtsp_found), " rtsp connections in the log files")
     if len(rtsp_found) == 0:
         print("This must be an Analog Rialto", '\n')
-
     date_value.sort()
     ffound1.close()
     # text = '\n'.join(rtsp_found)
     #    print(len(text))
     #    print(text)
     #    date_v = '\n'.join(date_value)
-    for i in range(len(date_value)):
-        print("date and time of the connection/re-connection: ", date_value[i])
+    # for i in range(len(date_value)):
+        # print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
-#    pprint.pprint(datedic)
+    pprint.pprint(datedic)
+    # yield datedic
 
-class LogLineGenerator:
-    def __init__(self, log_format=None, log_dir='flist1'):
-        #Standard log format "%t, %h:, %m
-        if not log_format:
-            self.format_string = '%t %h %m'
-        else:
-            self.format_string = log_format
-        self.log_dir = flist1
-        self.re_tsquote = re.compile(r'(\[|\])')
-        self.field_list = []
-        for directive in self.format_string.split(''):
-            self.field_list.append(DIRRECTIVE_MAP[directive])
+'''Search for exceptions'''
+def exception(flist1, exception_found, datedic):
+    # date_line = []
+    date_value = []
+    with open("exceptions.txt", "w") as ffound1:
+        for fname in flist1:
+            if 'health' not in str(fname):
+                with open(fname, "r", encoding="ISO-8859-1") as file:
+                    #   print('\r', "File name is ", fname)
+                    for line in file:
+                        if "Exception" in line:
+                            ffound1.write(line)
+                            # date_line = line.split(' ')
+                            # date_v1 = (date_line[0] + " " + date_line[1])
+                            if line not in date_value:
+                                date_value.append(line)
+                                exception_found.append(line)  # add the exception_found lines to the exception_found list
+                              #  datedic.setdefault(date_v1, []).append(date_line[-1])
+                              #  datedic.setdefault('logdate', []).append(date_v1)
+                              #  datedic.setdefault('logtime', []).append(date_line[1])
+#                        else:
+#                            print("No RTSP connection requests. This is Analog Rialto")
+    print("found ", len(exception_found), " Exceptions in the log files")
+    date_value.sort()
+    ffound1.close()
+    # text = '\n'.join(exception_found)
+    #    print(len(text))
+    #    print(text)
+    #    date_v = '\n'.join(date_value)
+    for i in range(len(date_value)):
+        print("date and time of the exception: ", date_value[i])
+    print(len(date_value))
+    # pprint.pprint(datedic)
+    # yield datedic
 
-
+'''call the main function'''
 if __name__ == "__main__": main()
 
 # TODO Investigate the time between the Rialto lost connection and the reboot
@@ -184,4 +207,5 @@ if __name__ == "__main__": main()
 # TODO Figure out how to do date based correlations
 # TODO decide what to do with the output = format it better, output it to a file?
 # TODO find a way to page the output on the screen
+# TODO combine searchargv and searchterms ?
 # pyperclip.copy(text)
