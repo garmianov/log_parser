@@ -16,6 +16,7 @@ lines = []
 text = []
 rtsp_found = []
 datedic = {}
+datedic1 = {}
 exception_found = []
 
 # flist = sys.argv[1] # receives the target directory from the CLI argument
@@ -50,9 +51,9 @@ DIRECTIVE_MAP = {
 
 ''' Main function which at the moment calls pre-defined searches'''
 def main():
-    reboots(flist1, found)
-    connect_rtsp(flist1, rtsp_found, datedic)
-    exception(flist1, exception_found, datedic)
+    # reboots(flist1, found)
+    connect_rtsp(flist1, rtsp_found, datedic, datedic1)
+    # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
     #   terms = sys.argv[2]
     #   searchargv(terms, flist1, found)
@@ -123,7 +124,7 @@ def reboots(flist1, found):
     print(len(date_value))
 
 '''Search for rtsp connections'''
-def connect_rtsp(flist1, rtsp_found, datedic):
+def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
     # date_line = []
     date_value = []
     with open("rtsp_connections.txt", "w") as ffound1:
@@ -132,16 +133,20 @@ def connect_rtsp(flist1, rtsp_found, datedic):
                 with open(fname, "r", encoding="ISO-8859-1") as file:
                     #   print('\r', "File name is ", fname)
                     for line in file:
-                        if "connecting to rtsp" in line:
+                        if "connecting to rtsp" in str.lower(line):
                             ffound1.write(line)
                             date_line = line.split(' ')
                             date_v1 = (date_line[0] + " " + date_line[1])
+                            date_time = line.split(' ')[1]
+                            date_date = line.split(' ')[0]
                             if date_v1 not in date_value:
                                 date_value.append(date_v1)
                                 rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
-                                datedic.setdefault(date_v1, []).append(date_line[-1])
-                              #  datedic.setdefault('logdate', []).append(date_v1)
-                              #  datedic.setdefault('logtime', []).append(date_line[1])
+                                # datedic.setdefault(date_v1, []).append(date_line[-1])
+                                # TODO need to finnish nested dictionaries here
+                                datedic.setdefault(date_date, []).append(date_time)
+                                datedic1.setdefault(date_date, []).append(date_line[-1])
+                                # datedic.setdefault('logtime', []).append(date_time)
 #                        else:
 #                            print("No RTSP connection requests. This is Analog Rialto")
     print("found ", len(rtsp_found), " rtsp connections in the log files")
@@ -169,7 +174,7 @@ def exception(flist1, exception_found, datedic):
                 with open(fname, "r", encoding="ISO-8859-1") as file:
                     #   print('\r', "File name is ", fname)
                     for line in file:
-                        if "Exception" in line:
+                        if "exception" in str.lower(line):
                             ffound1.write(line)
                             # date_line = line.split(' ')
                             # date_v1 = (date_line[0] + " " + date_line[1])
@@ -216,15 +221,17 @@ class LogLineGenerator:
 '''call the main function'''
 if __name__ == "__main__": main()
 
-# TODO Investigate the time between the Rialto lost connection and the reboot
-# TODO Use dictionaries for data correlations
-# TODO Investigate Camera connection quality
-# TODO Correlation between date-time of reboots and rtsp connections
-# TODO Determine whether the rtsp connection is a result of lost connection or reboot
-# TODO Investigate Decoder errors
-# TODO Check for Calibration resets
-# TODO Figure out how to do date based correlations
-# TODO decide what to do with the output = format it better, output it to a file?
-# TODO find a way to page the output on the screen
-# TODO combine searchargv and searchterms ?
+'''
+TODO Investigate the time between the Rialto lost connection and the reboot
+TODO Use dictionaries for data correlations
+TODO Investigate Camera connection quality
+TODO Correlation between date-time of reboots and rtsp connections
+TODO Determine whether the rtsp connection is a result of lost connection or reboot
+TODO Investigate Decoder errors
+TODO Check for Calibration resets
+TODO Figure out how to do date based correlations
+TODO decide what to do with the output = format it better, output it to a file?
+TODO find a way to page the output on the screen
+TODO combine searchargv and searchterms ?
+'''
 # pyperclip.copy(text)
