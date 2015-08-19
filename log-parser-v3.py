@@ -51,7 +51,7 @@ DIRECTIVE_MAP = {
 
 ''' Main function which at the moment calls pre-defined searches'''
 def main():
-    # reboots(flist1, found)
+    reboots(flist1, found)
     connect_rtsp(flist1, rtsp_found, datedic, datedic1)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
@@ -144,8 +144,12 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
                                 rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
                                 # datedic.setdefault(date_v1, []).append(date_line[-1])
                                 # TODO need to finnish nested dictionaries here
-                                datedic.setdefault(date_date, []).append(date_time)
-                                datedic1.setdefault(date_date, []).append(date_line[-1])
+                                # datedic1.setdefault(date_date, []).append(datedic.setdefault(date_time, []).append(date_line[-1]))
+                                # datedic.setdefault(date_time, []).append(date_line[-1])
+                                datedic = {date_time:date_line[-1]}
+                                # datedic1.setdefault(date_date, []).append({date_time:date_line[-1]})
+                                datedic1.setdefault(date_date, []).append(datedic)
+                                # datedic1.setdefault(date_date, []).append(date_line[-1])
                                 # datedic.setdefault('logtime', []).append(date_time)
 #                        else:
 #                            print("No RTSP connection requests. This is Analog Rialto")
@@ -161,7 +165,7 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
     # for i in range(len(date_value)):
         # print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
-    pprint.pprint(datedic)
+    pprint.pprint(datedic1)
     # yield datedic
 
 '''Search for exceptions'''
