@@ -144,13 +144,8 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
                                 rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
                                 # datedic.setdefault(date_v1, []).append(date_line[-1])
                                 # TODO need to finnish nested dictionaries here
-                                # datedic1.setdefault(date_date, []).append(datedic.setdefault(date_time, []).append(date_line[-1]))
-                                # datedic.setdefault(date_time, []).append(date_line[-1])
                                 datedic = {date_time:date_line[-1]}
-                                # datedic1.setdefault(date_date, []).append({date_time:date_line[-1]})
                                 datedic1.setdefault(date_date, []).append(datedic)
-                                # datedic1.setdefault(date_date, []).append(date_line[-1])
-                                # datedic.setdefault('logtime', []).append(date_time)
 #                        else:
 #                            print("No RTSP connection requests. This is Analog Rialto")
     print("found ", len(rtsp_found), " rtsp connections in the log files")
