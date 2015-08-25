@@ -9,6 +9,7 @@ import os
 import sys
 import pprint
 import datetime
+import collections
 
 '''defining variables'''
 found = []
@@ -51,14 +52,14 @@ DIRECTIVE_MAP = {
 
 ''' Main function which at the moment calls pre-defined searches'''
 def main():
-    reboots(flist1, found)
+    # reboots(flist1, found)
     connect_rtsp(flist1, rtsp_found, datedic, datedic1)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
-    #   terms = sys.argv[2]
-    #   searchargv(terms, flist1, found)
+      # terms = sys.argv[2]
+      # searchargv(terms, flist1, found)
     # else:
-    #   terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Ping overdue','ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:','rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost','Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate']
+      # terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Ping overdue','ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:','rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost','Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate']
     # searchterms(terms, flist1, found)
     # text = pyperclip.paste()
 
@@ -126,28 +127,26 @@ def reboots(flist1, found):
 '''Search for rtsp connections'''
 def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
     # date_line = []
-    date_value = []
-    with open("rtsp_connections.txt", "w") as ffound1:
-        for fname in flist1:
+    date_value = [] #using to hold date time value from the log lines.
+    with open("rtsp_connections.txt", "w") as ffound1: #open file to hold the found log lines
+        for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
             if 'health' not in str(fname):
                 with open(fname, "r", encoding="ISO-8859-1") as file:
                     #   print('\r', "File name is ", fname)
                     for line in file:
                         if "connecting to rtsp" in str.lower(line):
                             ffound1.write(line)
-                            date_line = line.split(' ')
+                            date_line = line.split(' ') #next four lines extract the date and time from the log line.
                             date_v1 = (date_line[0] + " " + date_line[1])
                             date_time = line.split(' ')[1]
                             date_date = line.split(' ')[0]
-                            if date_v1 not in date_value:
+                            if date_v1 not in date_value: 
                                 date_value.append(date_v1)
                                 rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
                                 # datedic.setdefault(date_v1, []).append(date_line[-1])
-                                # TODO need to finnish nested dictionaries here
                                 datedic = {date_time:date_line[-1]}
                                 datedic1.setdefault(date_date, []).append(datedic)
-#                        else:
-#                            print("No RTSP connection requests. This is Analog Rialto")
+                                c = collections.Counter(datedic1)
     print("found ", len(rtsp_found), " rtsp connections in the log files")
     if len(rtsp_found) == 0:
         print("This must be an Analog Rialto", '\n')
@@ -160,6 +159,7 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
     # for i in range(len(date_value)):
         # print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
+    # pprint.pprint(datedic1)
     pprint.pprint(datedic1)
     # yield datedic
 
