@@ -224,6 +224,7 @@ class LogLineGenerator:
 if __name__ == "__main__": main()
 
 '''
+TODO How to group lines by time stamp?
 TODO Investigate the time between the Rialto lost connection and the reboot
 TODO Use dictionaries for data correlations
 TODO Investigate Camera connection quality
