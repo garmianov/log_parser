@@ -24,21 +24,7 @@
     <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="notes.txt" />
-    <Content Include="notes.txt~" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="count.py" />
-    <Compile Include="justify.py" />
-    <Compile Include="log-parser-v1.py" />
-    <Compile Include="log-parser-v2.py" />
     <Compile Include="log-parser-v3.py" />
-    <Compile Include="paste-split.py" />
-    <Compile Include="pw.py" />
-    <Compile Include="tictactoe.py" />
-    <Compile Include="totalbrought.py" />
-    <Compile Include="validateInpyt.py" />
-    <Compile Include="web-scrub.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\3.4" />

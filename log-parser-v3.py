@@ -1,4 +1,4 @@
-#!/bin/python3
+﻿#!/bin/python3
 
 # paste-split.py - Adds Wikipedia bullet points to the start of each line of text in the clipboard
 
@@ -140,7 +140,7 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
                             date_v1 = (date_line[0] + " " + date_line[1])
                             date_time = line.split(' ')[1]
                             date_date = line.split(' ')[0]
-                            if date_v1 not in date_value: 
+                            if date_v1 not in date_value:
                                 date_value.append(date_v1)
                                 rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
                                 # datedic.setdefault(date_v1, []).append(date_line[-1])
@@ -159,7 +159,10 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
     # for i in range(len(date_value)):
         # print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
-    # pprint.pprint(datedic1)
+    #for k, v in sorted(datedic1.items()):
+    #    pprint.pprint(k)
+    #    for time, memo in v['memo'].items():
+    #        print(memo)
     pprint.pprint(datedic1)
     # yield datedic
 
