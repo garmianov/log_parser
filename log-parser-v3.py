@@ -143,10 +143,12 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
                             if date_v1 not in date_value:
                                 date_value.append(date_v1)
                                 rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
-                                # datedic.setdefault(date_v1, []).append(date_line[-1])
-                                datedic = {date_time:date_line[-1]}
-                                datedic1.setdefault(date_date, []).append(datedic)
-                                c = collections.Counter(datedic1)
+                                '''
+                                add the line with time stamp (date_time) and the log line (date_line[-1]) as a sub dictionary, timestamp will be the key, date (date_date) is the key for the main dict
+                                '''
+                                datedic1.setdefault(date_date, {})[date_time] = date_line[-1]
+                                c = collections.Counter(datedic1) #not sure what I am going to use this for
+                            
     print("found ", len(rtsp_found), " rtsp connections in the log files")
     if len(rtsp_found) == 0:
         print("This must be an Analog Rialto", '\n')
@@ -159,12 +161,30 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
     # for i in range(len(date_value)):
         # print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
-    #for k, v in sorted(datedic1.items()):
-    #    pprint.pprint(k)
-    #    for time, memo in v['memo'].items():
-    #        print(memo)
-    pprint.pprint(datedic1)
-    # yield datedic
+
+    key_dict1 = datedic1.keys()
+    for n in sorted(key_dict1):
+        for memo in datedic1[n]:
+            print(n, "+++>", "=>", memo)
+     
+    '''
+    for k, v in sorted(datedic1.items()):
+        #pprint.pprint(k)
+        #pprint.pprint(v)
+        #for time, memo in sorted(v.items()):
+         #  print(k, "+++>", time, "=>", memo)
+        n = 0
+        for time in sorted(v.keys()):
+           n += 1 
+    '''
+    #pprint.pprint(datedic1)
+    #    print(n)
+    #yield datedic1
+    #pprint.pprint(t)
+    '''
+    for key in sorted(datedic1):
+        print(key, '=> ',datedic1[key])
+    '''
 
 '''Search for exceptions'''
 def exception(flist1, exception_found, datedic):
