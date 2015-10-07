@@ -10,6 +10,7 @@ import sys
 import pprint
 import datetime
 import collections
+import operator
 
 '''defining variables'''
 found = []
@@ -126,6 +127,7 @@ def reboots(flist1, found):
 
 '''Search for rtsp connections'''
 def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
+    timedict = {}
     # date_line = []
     date_value = [] #using to hold date time value from the log lines.
     with open("rtsp_connections.txt", "w") as ffound1: #open file to hold the found log lines
@@ -148,25 +150,27 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
                                 '''
                                 datedic1.setdefault(date_date, {})[date_time] = date_line[-1]
                                 c = collections.Counter(datedic1) #not sure what I am going to use this for
-                            
+
     print("found ", len(rtsp_found), " rtsp connections in the log files")
     if len(rtsp_found) == 0:
         print("This must be an Analog Rialto", '\n')
     date_value.sort()
     ffound1.close()
-    # text = '\n'.join(rtsp_found)
-    #    print(len(text))
-    #    print(text)
-    #    date_v = '\n'.join(date_value)
-    # for i in range(len(date_value)):
-        # print("date and time of the connection/re-connection: ", date_value[i])
     print(len(date_value))
 
     key_dict1 = datedic1.keys()
     for n in sorted(key_dict1):
-        for memo in datedic1[n]:
-            print(n, "+++>", "=>", memo)
-     
+        time = list(sorted(datedic1[n].keys()))
+        lentime = len(time)
+        timedict.setdefault(n, []).append(lentime)
+    result = max(timedict.items(), key=operator.itemgetter(1))[0]
+    resultmin = min(timedict.items(), key=operator.itemgetter(1))[0]
+    x = timedict[result]
+    y = timedict[resultmin]
+    print("Most reconnects -", x[0], "happened on", result)
+    print("Least reconnects ", y[0], "happened on", resultmin)
+  
+   # input('Press any key to continue')
     '''
     for k, v in sorted(datedic1.items()):
         #pprint.pprint(k)
@@ -175,7 +179,7 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
          #  print(k, "+++>", time, "=>", memo)
         n = 0
         for time in sorted(v.keys()):
-           n += 1 
+           n += 1
     '''
     #pprint.pprint(datedic1)
     #    print(n)
