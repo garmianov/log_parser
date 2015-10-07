@@ -157,14 +157,16 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
     date_value.sort()
     ffound1.close()
     print(len(date_value))
-
-    key_dict1 = datedic1.keys()
-    for n in sorted(key_dict1):
-        time = list(sorted(datedic1[n].keys()))
-        lentime = len(time)
-        timedict.setdefault(n, []).append(lentime)
-    result = max(timedict.items(), key=operator.itemgetter(1))[0]
-    resultmin = min(timedict.items(), key=operator.itemgetter(1))[0]
+'''
+The part below is analysing the content of the datedict1 for various correlations
+'''
+    key_dict1 = datedic1.keys()                                         # Isolate the dates of the reconnects
+    for n in sorted(key_dict1):                                         #iterate through the dict by dates so we can investigate each day in turn
+        time = list(sorted(datedic1[n].keys()))                         #find the times of the reconnects within a given day
+        lentime = len(time)                                             # how many times in a day the reconnect occured. counts the times stamps that are shown as key of the sub-dictionary
+        timedict.setdefault(n, []).append(lentime)                      # Created timedict dictionary to hold the day as key and the number of re-connects as values.
+    result = max(timedict.items(), key=operator.itemgetter(1))[0]       # Finds the day with most re-connects
+    resultmin = min(timedict.items(), key=operator.itemgetter(1))[0]    #supposetly finds the day with least re-connect but not clear what's the procedure if two days have the same number of reconnects
     x = timedict[result]
     y = timedict[resultmin]
     print("Most reconnects -", x[0], "happened on", result)
