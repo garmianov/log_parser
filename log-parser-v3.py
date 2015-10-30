@@ -23,7 +23,7 @@ exception_found = []
 
 # flist = sys.argv[1] # receives the target directory from the CLI argument
 
-os.chdir(sys.argv[1])  # Changes the present working directory to the one from the CLI argument
+os.chdir(os.path.abspath(sys.argv[1]))  # Changes the present working directory to the one from the CLI argument
 
 if os.path.exists("./sresults"):  # check whether sresults exists and delete it so it is not mixing results
     os.remove("./sresults")
@@ -53,7 +53,7 @@ DIRECTIVE_MAP = {
 
 ''' Main function which at the moment calls pre-defined searches'''
 def main():
-    # reboots(flist1, found)
+    reboots(flist1, found)
     connect_rtsp(flist1, rtsp_found, datedic, datedic1)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
@@ -61,7 +61,7 @@ def main():
       # searchargv(terms, flist1, found)
     # else:
       # terms = ['watchdog', 'Unhandled fault', 'Failed to authenticate', 'Link is', 'Ping overdue','ValidateAndUpdateStreams:Writing Configuration', 'Started at', 'CameraDescriptor:', 'Current boot version:','rebootSystem', 'set resolution to', 'Decode error', 'Overdue', 'Video Present', 'Video Lost','Timeout during', 'Connecting to rtsp:', 'RTSP \[[0-3]\]', 'Fps', 'Bitrate']
-    # searchterms(terms, flist1, found)
+      # searchterms(terms, flist1, found)
     # text = pyperclip.paste()
 
 ''' Search using term from the command line arguments'''
@@ -128,7 +128,6 @@ def reboots(flist1, found):
 '''Search for rtsp connections'''
 def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
     timedict = {}
-    # date_line = []
     date_value = [] #using to hold date time value from the log lines.
     with open("rtsp_connections.txt", "w") as ffound1: #open file to hold the found log lines
         for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
@@ -157,9 +156,9 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
     date_value.sort()
     ffound1.close()
     print(len(date_value))
-'''
-The part below is analysing the content of the datedict1 for various correlations
-'''
+    '''
+    The part below is analysing the content of the datedict1 for various correlations
+    '''
     key_dict1 = datedic1.keys()                                         # Isolate the dates of the reconnects
     for n in sorted(key_dict1):                                         #iterate through the dict by dates so we can investigate each day in turn
         time = list(sorted(datedic1[n].keys()))                         #find the times of the reconnects within a given day
@@ -170,7 +169,7 @@ The part below is analysing the content of the datedict1 for various correlation
     x = timedict[result]
     y = timedict[resultmin]
     print("Most reconnects -", x[0], "happened on", result)
-    print("Least reconnects ", y[0], "happened on", resultmin)
+    print("Least reconnects -", y[0], "happened on", resultmin)
   
    # input('Press any key to continue')
     '''
