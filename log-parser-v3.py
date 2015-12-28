@@ -54,8 +54,9 @@ DIRECTIVE_MAP = {
 
 ''' Main function which at the moment calls pre-defined searches'''
 def main():
-    reboots(flist1, found)
-    # connect_rtsp(flist1, rtsp_found, datedic, datedic1)
+    # reboots(flist1)
+    connect_rtsp(flist1)
+    reboots(flist1)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
       # terms = sys.argv[2]
@@ -98,34 +99,34 @@ def searchterms(terms, flist1, found):
     print(text)
 
 ''' Search for reboots entries '''
-def reboots(flist1, found):
+def reboots(flist1):
     # date_line = []
     date_value = []
-    timedict = {}
-    with open("reboots.txt", "w") as ffound1:
+    timedict1 = {}
+    with open("reboots.txt", "w") as ffound:
         for fname in flist1:
             if 'syslog' in str(fname):
                 with open(fname, "r", encoding="ISO-8859-1") as file:
                     #   print('\r', "File name is ", fname)
                     for line in file:
                         if "restart" in str.lower(line):
-                            ffound1.write(line)
+                            ffound.write(line)
                             date_line = line.split(' ') #next four lines extract the date and time from the log line.
                             date_v1 = (date_line[0] + " " + date_line[1])
                             date_time = line.split(' ')[1]
                             date_date = line.split(' ')[0]
                             if date_v1 not in date_value:
                                 date_value.append(date_v1)
-                                rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
+                                found.append(line)  # add the rtsp_found lines to the rtsp_found list
                                 '''
                                 add the line with time stamp (date_time) and the log line (date_line[-1]) as a sub dictionary, timestamp will be the key, date (date_date) is the key for the main dict
                                 '''
                                 datedic1.setdefault(date_date, {})[date_time] = date_line[-1]
                                 c = collections.Counter(datedic1) #not sure what I am going to use this for
 
-    print("found ", len(rtsp_found), " restarts in the log files")
+    print("found ", len(found), " restarts in the log files")
     date_value.sort()
-    ffound1.close()
+    ffound.close()
     print(len(date_value))
     '''
     The part below is analysing the content of the datedict1 for various correlations
@@ -134,22 +135,22 @@ def reboots(flist1, found):
     for n in sorted(key_dict1):                                         #iterate through the dict by dates so we can investigate each day in turn
         time = list(sorted(datedic1[n].keys()))                         #find the times of the reconnects within a given day
         lentime = int(len(time))                                             # how many times in a day the reconnect occured. counts the times stamps that are shown as key of the sub-dictionary
-        timedict.setdefault(n, []).append(lentime)                      # Created timedict dictionary to hold the day as key and the number of re-connects as values.
+        timedict1.setdefault(n, []).append(lentime)                      # Created timedict dictionary to hold the day as key and the number of re-connects as values.
 
-    resultmax = max(timedict.items(), key=operator.itemgetter(1))[0]       # Finds the day with most re-connects
-    resultmin = min(timedict.items(), key=operator.itemgetter(1))[0]    #supposetly finds the day with least re-connect but not clear what's the procedure if two days have the same number of reconnects
-    x = timedict[resultmax]
-    y = timedict[resultmin]
+    resultmax = max(timedict1.items(), key=operator.itemgetter(1))[0]       # Finds the day with most re-connects
+    resultmin = min(timedict1.items(), key=operator.itemgetter(1))[0]    #supposetly finds the day with least re-connect but not clear what's the procedure if two days have the same number of reconnects
+    x = timedict1[resultmax]
+    y = timedict1[resultmin]
     print("Most restarts -", x[0], "happened on", resultmax)
     print("Least restarts -", y[0], "happened on", resultmin)
     
-    for day in sorted(timedict, key=timedict.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
-        print("Date ", day, ": restarts per day ", timedict[day])
+    for day in sorted(timedict1, key=timedict1.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
+        print("Date ", day, ": restarts per day ", timedict1[day])
 
 '''Search for rtsp connections'''
-def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
+def connect_rtsp(flist1):
     timedict = {}
-    date_value = [] #using to hold date time value from the log lines.
+    date_value1 = [] #using to hold date time value from the log lines.
     with open("rtsp_connections.txt", "w") as ffound1: #open file to hold the found log lines
         for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
             if 'syslog' in str(fname):
@@ -162,27 +163,27 @@ def connect_rtsp(flist1, rtsp_found, datedic, datedic1):
                             date_v1 = (date_line[0] + " " + date_line[1])
                             date_time = line.split(' ')[1]
                             date_date = line.split(' ')[0]
-                            if date_v1 not in date_value:
-                                date_value.append(date_v1)
+                            if date_v1 not in date_value1:
+                                date_value1.append(date_v1)
                                 rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
                                 '''
                                 add the line with time stamp (date_time) and the log line (date_line[-1]) as a sub dictionary, timestamp will be the key, date (date_date) is the key for the main dict
                                 '''
-                                datedic1.setdefault(date_date, {})[date_time] = date_line[-1]
-                                c = collections.Counter(datedic1) #not sure what I am going to use this for
+                                datedic.setdefault(date_date, {})[date_time] = date_line[-1]
+                                c = collections.Counter(datedic) #not sure what I am going to use this for
 
     print("found ", len(rtsp_found), " rtsp connections in the log files")
     if len(rtsp_found) == 0:
         print("This must be an Analog Rialto", '\n')
-    date_value.sort()
+    date_value1.sort()
     ffound1.close()
-    print(len(date_value))
+    print(len(date_value1))
     '''
     The part below is analysing the content of the datedict1 for various correlations
     '''
-    key_dict1 = datedic1.keys()                                         # Isolate the dates of the reconnects
-    for n in sorted(key_dict1):                                         #iterate through the dict by dates so we can investigate each day in turn
-        time = list(sorted(datedic1[n].keys()))                         #find the times of the reconnects within a given day
+    key_dict = datedic.keys()                                         # Isolate the dates of the reconnects
+    for n in sorted(key_dict):                                         #iterate through the dict by dates so we can investigate each day in turn
+        time = list(sorted(datedic[n].keys()))                         #find the times of the reconnects within a given day
         lentime = int(len(time))                                             # how many times in a day the reconnect occured. counts the times stamps that are shown as key of the sub-dictionary
         timedict.setdefault(n, []).append(lentime)                      # Created timedict dictionary to hold the day as key and the number of re-connects as values.
 
