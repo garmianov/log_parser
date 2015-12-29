@@ -11,6 +11,7 @@ import pprint
 import datetime
 import collections
 import operator
+import string
 from collections import Counter
 
 '''defining variables'''
@@ -18,11 +19,15 @@ found = []
 lines = []
 text = []
 rtsp_found = []
+fwversion = []
+derror_found = []
 datedic = {}
 datedic1 = {}
 exception_found = []
 timedict = {}
 timedict1 = {}
+derror_dic = {}
+errordict = {}
 
 # flist = sys.argv[1] # receives the target directory from the CLI argument
 
@@ -56,9 +61,11 @@ DIRECTIVE_MAP = {
 
 ''' Main function which at the moment calls pre-defined searches'''
 def main():
-    reboots(flist1)
-    connect_rtsp(flist1)
-    compare(datedic, datedic1, timedict, timedict1)
+    fw_version(flist1)
+    #reboots(flist1)
+    #connect_rtsp(flist1)
+    #compare(datedic, datedic1, timedict, timedict1)
+    decode_error(flist1)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
       # terms = sys.argv[2]
@@ -68,8 +75,38 @@ def main():
       # searchterms(terms, flist1, found)
     # text = pyperclip.paste()
 
-''' Search using term from the command line arguments'''
+def fw_version(flist1):
+    '''Finds and prints the FW version and the SN fo the device
+    '''
+    fwversion = []
+    date_value1 = [] #using to hold date time value from the log lines.
+    with open("device_info.txt", "w") as devinfo: #open file to hold the found log lines
+        for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
+            if 'syslog' in str(fname):
+                with open(fname, "r", encoding="ISO-8859-1") as file:
+                    #   print('\r', "File name is ", fname)
+                    for line in file:
+                        if "Current boot version" in line.strip():
+                            devinfo.write(line)
+                            fwholder = line.split(':')
+                            fwholder1 = fwholder[4]
+                            fwholder1 = fwholder1.strip()
+                            if fwholder1 not in fwversion:
+                                fwversion.append(fwholder1)
+                        if "Serial=" in line.strip():
+                            devinfo.write(line)
+                            fwholder = line.split('=')
+                            fwholder1 = fwholder[1]
+                            fwholder1 = fwholder1.strip()
+                            if fwholder1 not in fwversion:
+                                fwversion.append(fwholder1)
+    print("Firmware version: ", fwversion[1])
+    print("Serial Number: ", fwversion[0])
+    print("="*80)
+                     
+
 def searchargv(terms, flist1, found):
+    '''Search using term from the command line arguments'''
     with open("sresults", "w") as ffound:
         for fname in flist1:
             if 'health' not in str(fname):
@@ -289,6 +326,62 @@ def compare(datedic, datedic1, timedict, timedict1):
     # input('Press any key to continue')
        elif day not in sorted(hey_days):
            print("date", day, "has", timedict[day], "rtsp reconnects and NO reboots")
+
+def decode_error(flist1):
+    ''' Analysing the Decode Errors in the syslog files, if any'''
+    hist = {}
+    date_value3 = [] #using to hold date time value from the log lines.
+    date_value4 = []
+    with open("rtsp_connections.txt", "w") as ffound3: #open file to hold the found log lines
+        for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
+            if 'syslog' in str(fname):
+                with open(fname, "r", encoding="ISO-8859-1") as file:
+                    #   print('\r', "File name is ", fname)
+                    for line in file:
+                        if "decode error" in str.lower(line.strip()):
+                            ffound3.write(line)
+                            date_line = line.split(' ') #next four lines extract the date and time from the log line.
+                            date_v1 = (date_line[0] + " " + date_line[1])
+                            date_time = line.split(' ')[1]
+                            date_date = line.split(' ')[0]
+                            derrname = (date_line[7] + " " + date_line[8])
+                            derrvalue = date_line[9]
+                            derrvalue = derrvalue.strip()
+                            camchannel = date_line[6]
+                            hist[derrvalue] = hist.get(derrvalue, 0) + 1
+                            # print("Camera ", camchannel, "has ", derrname, derrvalue)
+                            if date_time not in date_value3:
+                                date_value3.append(date_v1)
+                                derror_found.append(line)  # add the derror_found lines to the derror_found list
+                                '''
+                                add the line with time stamp (date_time) and the log line (date_line[-1]) as a sub dictionary, timestamp will be the key, date (date_date) is the key for the main dict
+                                '''
+                                derror_dic.setdefault(date_date, {})[date_time] = date_line[-1]
+                                c = collections.Counter(derror_dic) #not sure what I am going to use this for
+                            
+    ffound3.close()
+    print("found ", len(derror_found), " Decode Errors in the log files")
+    if len(derror_found) == 0:
+        print("No Decode Errors found in syslog*", '\n')
+    date_value3.sort()
+    pprint.pprint(hist)
+    
+    '''
+    The part below is analysing the content of the derror_dict1 for various correlations
+    '''
+    key_dict = derror_dic.keys()                                         # Isolate the dates of the reconnects
+    for n in sorted(key_dict):                                         #iterate through the dict by dates so we can investigate each day in turn
+        time = list(sorted(derror_dic[n].keys()))                         #find the times of the reconnects within a given day
+        lentime = int(len(time))                                             # how many times in a day the reconnect occured. counts the times stamps that are shown as key of the sub-dictionary
+        errordict.setdefault(n, []).append(lentime)                      # Created errordict dictionary to hold the day as key and the number of re-connects as values.
+
+    resultmax = max(errordict.items(), key=operator.itemgetter(1))[0]       # Finds the day with most re-connects
+    resultmin = min(errordict.items(), key=operator.itemgetter(1))[0]    #supposetly finds the day with least re-connect but not clear what's the procedure if two days have the same number of reconnects
+    x = errordict[resultmax]
+    print("Most Decode Errors in a day -", x[0], "happened on", resultmax)
+     
+    return derror_dic
+    return errordict       
 
 '''call the main function'''
 if __name__ == "__main__": main()
