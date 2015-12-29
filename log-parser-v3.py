@@ -21,6 +21,8 @@ rtsp_found = []
 datedic = {}
 datedic1 = {}
 exception_found = []
+timedict = {}
+timedict1 = {}
 
 # flist = sys.argv[1] # receives the target directory from the CLI argument
 
@@ -54,9 +56,9 @@ DIRECTIVE_MAP = {
 
 ''' Main function which at the moment calls pre-defined searches'''
 def main():
-    # reboots(flist1)
-    connect_rtsp(flist1)
     reboots(flist1)
+    connect_rtsp(flist1)
+    compare(datedic, datedic1, timedict, timedict1)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
       # terms = sys.argv[2]
@@ -102,7 +104,6 @@ def searchterms(terms, flist1, found):
 def reboots(flist1):
     # date_line = []
     date_value = []
-    timedict1 = {}
     with open("reboots.txt", "w") as ffound:
         for fname in flist1:
             if 'syslog' in str(fname):
@@ -146,10 +147,11 @@ def reboots(flist1):
     
     for day in sorted(timedict1, key=timedict1.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
         print("Date ", day, ": restarts per day ", timedict1[day])
+    return datedic1
+    return timedict1
 
 '''Search for rtsp connections'''
 def connect_rtsp(flist1):
-    timedict = {}
     date_value1 = [] #using to hold date time value from the log lines.
     with open("rtsp_connections.txt", "w") as ffound1: #open file to hold the found log lines
         for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
@@ -197,7 +199,9 @@ def connect_rtsp(flist1):
     for day in sorted(timedict, key=timedict.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
         print("Date ", day, ": connections per day ", timedict[day])
     
-  
+    return datedic
+    return timedict
+
    # input('Press any key to continue')
     '''
     for k, v in sorted(datedic1.items()):
@@ -271,6 +275,20 @@ class LogLineGenerator:
 #            for line in file:
 #            yield self.re_tsquote.sub('"', line)
 '''
+def compare(datedic, datedic1, timedict, timedict1):
+    print("test1")
+    for day in sorted(timedict, key=timedict.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
+       # print("Date ", day, ": connections per day ", timedict[day])
+       hey_days = timedict1.keys()
+       if day in sorted(hey_days):
+            print("Date", day, "reconnects: ", timedict1[day], "rtsp connections: ", timedict[day])
+
+       #for day1 in sorted(timedict1, key=timedict1.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
+       #     if day == day1:
+       #         print("Date", day, "reconnects: ", timedict1[day], "rtsp connections: ", timedict[day])
+    # input('Press any key to continue')
+       elif day not in sorted(hey_days):
+           print("date", day, "has", timedict[day], "rtsp reconnects and no reboots")
 
 '''call the main function'''
 if __name__ == "__main__": main()
