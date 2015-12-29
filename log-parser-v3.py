@@ -128,7 +128,7 @@ def reboots(flist1):
     print("found ", len(found), " restarts in the log files")
     date_value.sort()
     ffound.close()
-    print(len(date_value))
+    #print(len(date_value))
     '''
     The part below is analysing the content of the datedict1 for various correlations
     '''
@@ -142,11 +142,11 @@ def reboots(flist1):
     resultmin = min(timedict1.items(), key=operator.itemgetter(1))[0]    #supposetly finds the day with least re-connect but not clear what's the procedure if two days have the same number of reconnects
     x = timedict1[resultmax]
     y = timedict1[resultmin]
-    print("Most restarts -", x[0], "happened on", resultmax)
-    print("Least restarts -", y[0], "happened on", resultmin)
+    print("Most restarts in a day -", x[0], "happened on", resultmax)
+ #   print("Least restarts -", y[0], "happened on", resultmin)
     
-    for day in sorted(timedict1, key=timedict1.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
-        print("Date ", day, ": restarts per day ", timedict1[day])
+    #for day in sorted(timedict1, key=timedict1.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
+    #    print("Date ", day, ": restarts per day ", timedict1[day])
     return datedic1
     return timedict1
 
@@ -179,7 +179,7 @@ def connect_rtsp(flist1):
         print("This must be an Analog Rialto", '\n')
     date_value1.sort()
     ffound1.close()
-    print(len(date_value1))
+    #print(len(date_value1))
     '''
     The part below is analysing the content of the datedict1 for various correlations
     '''
@@ -193,11 +193,11 @@ def connect_rtsp(flist1):
     resultmin = min(timedict.items(), key=operator.itemgetter(1))[0]    #supposetly finds the day with least re-connect but not clear what's the procedure if two days have the same number of reconnects
     x = timedict[resultmax]
     y = timedict[resultmin]
-    print("Most reconnects -", x[0], "happened on", resultmax)
-    print("Least reconnects -", y[0], "happened on", resultmin)
+    print("Most reconnects in a day -", x[0], "happened on", resultmax)
+   # print("Least reconnects -", y[0], "happened on", resultmin)
     
-    for day in sorted(timedict, key=timedict.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
-        print("Date ", day, ": connections per day ", timedict[day])
+    #for day in sorted(timedict, key=timedict.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
+    #    print("Date ", day, ": connections per day ", timedict[day])
     
     return datedic
     return timedict
@@ -276,10 +276,10 @@ class LogLineGenerator:
 #            yield self.re_tsquote.sub('"', line)
 '''
 def compare(datedic, datedic1, timedict, timedict1):
-    print("test1")
     for day in sorted(timedict, key=timedict.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
        # print("Date ", day, ": connections per day ", timedict[day])
        hey_days = timedict1.keys()
+       print("="*80)
        if day in sorted(hey_days):
             print("Date", day, "reconnects: ", timedict1[day], "rtsp connections: ", timedict[day])
 
@@ -288,7 +288,7 @@ def compare(datedic, datedic1, timedict, timedict1):
        #         print("Date", day, "reconnects: ", timedict1[day], "rtsp connections: ", timedict[day])
     # input('Press any key to continue')
        elif day not in sorted(hey_days):
-           print("date", day, "has", timedict[day], "rtsp reconnects and no reboots")
+           print("date", day, "has", timedict[day], "rtsp reconnects and NO reboots")
 
 '''call the main function'''
 if __name__ == "__main__": main()
