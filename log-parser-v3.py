@@ -62,9 +62,9 @@ DIRECTIVE_MAP = {
 ''' Main function which at the moment calls pre-defined searches'''
 def main():
     fw_version(flist1)
-    #reboots(flist1)
-    #connect_rtsp(flist1)
-    #compare(datedic, datedic1, timedict, timedict1)
+    reboots(flist1)
+    connect_rtsp(flist1)
+    compare(datedic, datedic1, timedict, timedict1)
     decode_error(flist1)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
@@ -364,7 +364,9 @@ def decode_error(flist1):
     if len(derror_found) == 0:
         print("No Decode Errors found in syslog*", '\n')
     date_value3.sort()
-    pprint.pprint(hist)
+   # pprint.pprint(hist)
+    for k in sorted(hist, key=hist.get, reverse=True):
+        print("Decode Error", k, "happened", hist[k], "times")
     
     '''
     The part below is analysing the content of the derror_dict1 for various correlations
