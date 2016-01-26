@@ -12,6 +12,7 @@ import datetime
 import collections
 import operator
 import string
+import re
 from collections import Counter
 
 '''defining variables'''
@@ -19,8 +20,9 @@ found = []
 lines = []
 text = []
 rtsp_found = []
-fwversion = []
+fwversion = [1,2,3,4]
 derror_found = []
+hd_status = []
 datedic = {}
 datedic1 = {}
 exception_found = []
@@ -62,10 +64,12 @@ DIRECTIVE_MAP = {
 ''' Main function which at the moment calls pre-defined searches'''
 def main():
     fw_version(flist1)
+    hdd_lot_status(flist1, fwversion)
     reboots(flist1)
     connect_rtsp(flist1)
     compare(datedic, datedic1, timedict, timedict1)
     decode_error(flist1)
+    hd_status(flist1, fwversion)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
       # terms = sys.argv[2]
@@ -78,7 +82,7 @@ def main():
 def fw_version(flist1):
     '''Finds and prints the FW version and the SN fo the device
     '''
-    fwversion = []
+    global fwversion
     date_value1 = [] #using to hold date time value from the log lines.
     with open("device_info.txt", "w") as devinfo: #open file to hold the found log lines
         for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
@@ -92,18 +96,40 @@ def fw_version(flist1):
                             fwholder1 = fwholder[4]
                             fwholder1 = fwholder1.strip()
                             if fwholder1 not in fwversion:
-                                fwversion.append(fwholder1)
+                                fwversion[0] = fwholder1
                         if "Serial=" in line.strip():
                             devinfo.write(line)
                             fwholder = line.split('=')
                             fwholder1 = fwholder[1]
                             fwholder1 = fwholder1.strip()
                             if fwholder1 not in fwversion:
-                                fwversion.append(fwholder1)
-    print("Firmware version: ", fwversion[1])
-    print("Serial Number: ", fwversion[0])
+                                fwversion[1] = fwholder1
+                        if "Model=" in line.strip():
+                            devinfo.write(line)
+                            fwholder = line.split('=')
+                            fwholder1 = fwholder[1]
+                            fwholder1 = fwholder1.strip()
+                            if fwholder1 not in fwversion:
+                                fwversion[2] = fwholder1
+                        if "hdspinup" in line.strip():
+                            devinfo.write(line)
+                            fwholder1 = 'stand-alone'
+                            if fwholder1 not in fwversion:
+                                fwversion[3] = fwholder1
+                        #print("This is a stand-alone Rialto")
+                        elif "nas_mount" in line.strip():
+                            devinfo.write(line)
+                            fwholder1 = 'blade'
+                            if fwholder1 not in fwversion:
+                                fwversion[3] = fwholder1
+                        
+                            
+    print("Firmware version: ", fwversion[0])
+    print("Serial Number: ", fwversion[1])
+    print("Model number:", fwversion[2])
+    print("Model type:", fwversion[3])
     print("="*80)
-                     
+    return fwversion                 
 
 def searchargv(terms, flist1, found):
     '''Search using term from the command line arguments'''
@@ -180,6 +206,7 @@ def reboots(flist1):
     x = timedict1[resultmax]
     y = timedict1[resultmin]
     print("Most restarts in a day -", x[0], "happened on", resultmax)
+    print("="*80)
  #   print("Least restarts -", y[0], "happened on", resultmin)
     
     #for day in sorted(timedict1, key=timedict1.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
@@ -189,6 +216,9 @@ def reboots(flist1):
 
 '''Search for rtsp connections'''
 def connect_rtsp(flist1):
+    iphist = {}
+    rtsp_ip = []
+    rtspip = []
     date_value1 = [] #using to hold date time value from the log lines.
     with open("rtsp_connections.txt", "w") as ffound1: #open file to hold the found log lines
         for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
@@ -202,13 +232,19 @@ def connect_rtsp(flist1):
                             date_v1 = (date_line[0] + " " + date_line[1])
                             date_time = line.split(' ')[1]
                             date_date = line.split(' ')[0]
+                            channelnum = line.split(' ')[6]
                             if date_v1 not in date_value1:
+                                rtsp_ip = line.split('/')
+                                rtspip = rtsp_ip[2].strip()
+                                channelnum = line.split(' ')[6]
+                                #print("IP is", rtsp_ip[2])
                                 date_value1.append(date_v1)
                                 rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
                                 '''
                                 add the line with time stamp (date_time) and the log line (date_line[-1]) as a sub dictionary, timestamp will be the key, date (date_date) is the key for the main dict
                                 '''
                                 datedic.setdefault(date_date, {})[date_time] = date_line[-1]
+                                iphist[rtspip] = iphist.get(rtspip, 0) + 1
                                 c = collections.Counter(datedic) #not sure what I am going to use this for
                         #else:
                         #    ffound1.close()
@@ -221,6 +257,8 @@ def connect_rtsp(flist1):
     '''
     The part below is analysing the content of the datedict1 for various correlations
     '''
+    for k in sorted(iphist, key=iphist.get, reverse=True):                  # Print the histogram sorted in reverse order by frequency of errors
+        print("IP in the rtsp reconnect is ", k, "it reconnected", iphist[k], "times")
     key_dict = datedic.keys()                                         # Isolate the dates of the reconnects
     for n in sorted(key_dict):                                         #iterate through the dict by dates so we can investigate each day in turn
         time = list(sorted(datedic[n].keys()))                         #find the times of the reconnects within a given day
@@ -232,6 +270,7 @@ def connect_rtsp(flist1):
     x = timedict[resultmax]
     y = timedict[resultmin]
     print("Most reconnects in a day -", x[0], "happened on", resultmax)
+    print("="*80)
    # print("Least reconnects -", y[0], "happened on", resultmin)
     
     #for day in sorted(timedict, key=timedict.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
@@ -239,26 +278,6 @@ def connect_rtsp(flist1):
     
     return datedic
     return timedict
-
-   # input('Press any key to continue')
-    '''
-    for k, v in sorted(datedic1.items()):
-        #pprint.pprint(k)
-        #pprint.pprint(v)
-        #for time, memo in sorted(v.items()):
-         #  print(k, "+++>", time, "=>", memo)
-        n = 0
-        for time in sorted(v.keys()):
-           n += 1
-    '''
-    #pprint.pprint(datedic1)
-    #    print(n)
-    #yield datedic1
-    #pprint.pprint(t)
-    '''
-    for key in sorted(datedic1):
-        print(key, '=> ',datedic1[key])
-    '''
 
 '''Search for exceptions'''
 def exception(flist1, exception_found, datedic):
@@ -292,6 +311,7 @@ def exception(flist1, exception_found, datedic):
     for i in range(len(date_value)):
         print("date and time of the exception: ", date_value[i])
     print(len(date_value))
+    print("="*80)
     # pprint.pprint(datedic)
     # yield datedic
 
@@ -320,7 +340,7 @@ def compare(datedic, datedic1, timedict, timedict1):
        print("="*80)
 
        if day in sorted(hey_days):
-            print("Date", day, "reconnects: ", timedict1[day], "rtsp connections: ", timedict[day])
+            print("Date", day, "device restarts: ", timedict1[day], "rtsp connections: ", timedict[day])
 
        #for day1 in sorted(timedict1, key=timedict1.get, reverse=True):        #print the number of reconnects per day for each day sorted descenting by number of reconnects
        #     if day == day1:
@@ -328,6 +348,7 @@ def compare(datedic, datedic1, timedict, timedict1):
     # input('Press any key to continue')
        elif day not in sorted(hey_days):
            print("date", day, "has", timedict[day], "rtsp reconnects and NO reboots")
+    print("="*80)
 
 def decode_error(flist1):
     ''' Analysing the Decode Errors in the syslog files, if any'''
@@ -373,7 +394,7 @@ def decode_error(flist1):
     ''' 
     for k in sorted(hist, key=hist.get, reverse=True):                  # Print the histogram sorted in reverse order by frequency of errors
         print("Decode Error", k, "happened", hist[k], "times")
-    
+    print("="*80)
     key_dict = derror_dic.keys()                                       
     for n in sorted(key_dict):                                         #iterate through the dict by dates so we can investigate each day in turn
         time = list(sorted(derror_dic[n].keys()))                         #find the times of the reconnects within a given day
@@ -384,10 +405,74 @@ def decode_error(flist1):
     resultmin = min(errordict.items(), key=operator.itemgetter(1))[0]    #supposetly finds the day with least re-connect but not clear what's the procedure if two days have the same number of reconnects
     x = errordict[resultmax]
     print("Most Decode Errors in a day -", x[0], "happened on", resultmax)
-     
+    print("="*80)     
     return derror_dic
     return errordict       
 
+def hd_status(flist1, fwversion):
+    ''' Analysing the HDD info in healt_mon.log and in syslog(?) in the syslog files, if any'''
+    hist = {}
+    usage = []
+    date_value3 = [] #using to hold date time value from the log lines.
+    date_value4 = []
+    for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
+        if 'health' in str(fname):
+            with open(fname, "r", encoding="ISO-8859-1") as file:
+                text = file.read()
+                #START = "Filesystem"
+                #END = "##"
+                #m = re.compile(r'%s.*?%s' %(START,END),re.S)
+                m = re.compile('DF(.*?)##', re.S)
+                lpr = m.search(text)
+                if lpr:
+                    lpr1 = lpr.group(1)
+                    #print(lpr1)
+                    if fwversion[3] is 'blade':
+                        for line in lpr1.split('\n'):
+                            if "FVS_BLADE" in line:
+                                line = line.split('/')
+                                slot = line[3]
+                            if "/mnt/hd" in line:
+                                line = line.split()
+                                usage = line[3]
+                                #usage = usage.strip('%')
+                                hist[usage] = hist.get(usage, 0) + 1
+                    else:
+                        for line in lpr1.split('\n'):
+                            if "/mnt/hd" in line:
+                                line = line.split()
+                                usage = line[4]
+                                hist[usage] = hist.get(usage, 0) + 1
+                                slot = False
+                else:
+                    print('Not found')
+        
+        
+                            
+    if slot is not False:
+        print("blade in slot:", slot)
+    for k in sorted(hist, key=hist.get, reverse=True):                  # Print the histogram sorted in reverse order by frequency of errors
+        print("HDD usage was at", k, hist[k], "times")
+    print("="*80)
+
+    
+
+def hdd_lot_status(flist1, fwversion):
+    hdd_dict = {} 
+    for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
+        if 'syslog' in str(fname):
+            with open(fname, "r", encoding="ISO-8859-1") as file1:
+                if fwversion[3] is not 'blade':
+                    for line1 in file1:
+                        if "hdd slot" in str.lower(line1.strip()):
+                            hdd_status = line1.split()
+                            hdd_status8 = hdd_status[8]
+                            hdd_status8 = hdd_status8.strip()
+                            if hdd_status8 != '2':
+                                hdd_dict[hdd_status8] = hdd_dict.get(hdd_status8, 0) + 1
+    for y in sorted(hdd_dict, key=hdd_dict.get, reverse=True):
+        print('HDD status was: "'+ y +'"', hdd_dict[y], "times") 
+    print("="*80)
 '''call the main function'''
 if __name__ == "__main__": main()
 
