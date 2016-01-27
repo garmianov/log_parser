@@ -477,17 +477,17 @@ def hdd_lot_status(flist1, fwversion):
 if __name__ == "__main__": main()
 
 '''
-TODO How to group lines by time stamp?
-TODO Investigate the time between the Rialto lost connection and the reboot
-TODO Use dictionaries for data correlations
-TODO Investigate Camera connection quality
-TODO Correlation between date-time of reboots and rtsp connections
-TODO Determine whether the rtsp connection is a result of lost connection or reboot
-TODO Investigate Decoder errors
-TODO Check for Calibration resets
-TODO Figure out how to do date based correlations
-TODO decide what to do with the output = format it better, output it to a file?
-TODO find a way to page the output on the screen
-TODO combine searchargv and searchterms ?
+TODO: How to group lines by time stamp?
+TODO: Investigate the time between the Rialto lost connection and the reboot
+TODO: Use dictionaries for data correlations
+TODO: Investigate Camera connection quality
+TODO: Correlation between date-time of reboots and rtsp connections
+TODO: Determine whether the rtsp connection is a result of lost connection or reboot
+TODO: Investigate Decoder errors
+TODO: Check for Calibration resets
+TODO: Figure out how to do date based correlations
+TODO: decide what to do with the output = format it better, output it to a file?
+TODO: find a way to page the output on the screen
+TODO: combine searchargv and searchterms ?
 '''
 # pyperclip.copy(text)
