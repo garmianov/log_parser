@@ -68,7 +68,7 @@ def main():
     reboots(flist1)
     connect_rtsp(flist1)
     compare(datedic, datedic1, timedict, timedict1)
-    decode_error(flist1)
+    #decode_error(flist1)
     hd_status(flist1, fwversion)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
@@ -218,6 +218,7 @@ def reboots(flist1):
 def connect_rtsp(flist1):
     iphist = {}
     rtsp_ip = []
+    ipdict = {}
     rtspip = []
     date_value1 = [] #using to hold date time value from the log lines.
     with open("rtsp_connections.txt", "w") as ffound1: #open file to hold the found log lines
@@ -232,7 +233,7 @@ def connect_rtsp(flist1):
                             date_v1 = (date_line[0] + " " + date_line[1])
                             date_time = line.split(' ')[1]
                             date_date = line.split(' ')[0]
-                            channelnum = line.split(' ')[6]
+                            #channelnum = line.split(' ')[6]
                             if date_v1 not in date_value1:
                                 rtsp_ip = line.split('/')
                                 rtspip = rtsp_ip[2].strip()
@@ -245,12 +246,16 @@ def connect_rtsp(flist1):
                                 '''
                                 datedic.setdefault(date_date, {})[date_time] = date_line[-1]
                                 iphist[rtspip] = iphist.get(rtspip, 0) + 1
+                                ipdict.setdefault(channelnum, []).append(rtspip)
                                 c = collections.Counter(datedic) #not sure what I am going to use this for
                         #else:
                         #    ffound1.close()
                         #    print("This must be an Analog Rialto", '\n')
                         #    return datedic
     print("found ", len(rtsp_found), " rtsp connections in the log files")
+    for ch, ip in sorted(ipdict.items()):
+        ips = sorted(set(ip))
+        print("Channel ", ch, "has IP ", ips)
     date_value1.sort()
     ffound1.close()
     #print(len(date_value1))
