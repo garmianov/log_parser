@@ -67,9 +67,9 @@ def main():
     hdd_lot_status(flist1, fwversion)
     reboots(flist1)
     connect_rtsp(flist1)
-    compare(datedic, datedic1, timedict, timedict1)
+    #compare(datedic, datedic1, timedict, timedict1)
     #decode_error(flist1)
-    hd_status(flist1, fwversion)
+    #hd_status(flist1, fwversion)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
       # terms = sys.argv[2]
@@ -195,7 +195,11 @@ def reboots(flist1):
     '''
     The part below is analysing the content of the datedict1 for various correlations
     '''
-    key_dict1 = datedic1.keys()                                         # Isolate the dates of the reconnects
+    key_dict1 = datedic1.keys() 
+    mdate = min(sorted(key_dict1))
+    mxdate = max(sorted(key_dict1))
+    print("The oldest entry is from {date1} \nThe last enty is from {date2}".format(date1 = mdate, date2 = mxdate))
+                                           # Isolate the dates of the reconnects
     for n in sorted(key_dict1):                                         #iterate through the dict by dates so we can investigate each day in turn
         time1 = list(sorted(datedic1[n].keys()))                         #find the times of the reconnects within a given day
         lentime1 = int(len(time1))                                             # how many times in a day the reconnect occured. counts the times stamps that are shown as key of the sub-dictionary
@@ -253,19 +257,28 @@ def connect_rtsp(flist1):
                         #    print("This must be an Analog Rialto", '\n')
                         #    return datedic
     print("found ", len(rtsp_found), " rtsp connections in the log files")
+    ''' 
+        The section below prints the IP and the channels of the connected cameras
+        This can be used for more 
+    '''
+    # TODO: need to fix the printing
     for ch, ip in sorted(ipdict.items()):
-        ips = sorted(set(ip))
-        print("Channel ", ch, "has IP ", ips)
+        ips = list(sorted(set(ip)))
+        print("Channel {channel} has IP {IP}".format(channel = ch, IP = ips))
     date_value1.sort()
     ffound1.close()
     #print(len(date_value1))
+
     '''
     The part below is analysing the content of the datedict1 for various correlations
     '''
     for k in sorted(iphist, key=iphist.get, reverse=True):                  # Print the histogram sorted in reverse order by frequency of errors
-        print("IP in the rtsp reconnect is ", k, "it reconnected", iphist[k], "times")
+        print("IP ", k, "reconnected", iphist[k], "times")
     key_dict = datedic.keys()                                         # Isolate the dates of the reconnects
-    for n in sorted(key_dict):                                         #iterate through the dict by dates so we can investigate each day in turn
+    mdate = min(sorted(key_dict))
+    mxdate = max(sorted(key_dict))  
+    print("The oldest entry is from {date1} \nThe last enty is from {date2}".format(date1 = mdate, date2 = mxdate))
+    for n in sorted(key_dict):                                              #iterate through the dict by dates so we can investigate each day in turn
         time = list(sorted(datedic[n].keys()))                         #find the times of the reconnects within a given day
         lentime = int(len(time))                                             # how many times in a day the reconnect occured. counts the times stamps that are shown as key of the sub-dictionary
         timedict.setdefault(n, []).append(lentime)                      # Created timedict dictionary to hold the day as key and the number of re-connects as values.
