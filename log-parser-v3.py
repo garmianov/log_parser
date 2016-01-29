@@ -34,7 +34,7 @@ errordict = {}
 # flist = sys.argv[1] # receives the target directory from the CLI argument
 
 os.chdir(os.path.abspath(sys.argv[1]))  # Changes the present working directory to the one from the CLI argument
-
+'''
 if os.path.exists("./sresults"):  # check whether sresults exists and delete it so it is not mixing results
     os.remove("./sresults")
     print("Removing sresults file")
@@ -50,6 +50,7 @@ if os.path.exists("./exceptions.txt"):  # check whether sresults exists and dele
 if os.path.exists("./rtsp_connections.txt"):  # check whether sresults exists and delete it so it is not mixing results
     os.remove("./rtsp_connections.txt")
     print("Removing rtsp_connections.txt file")
+'''
 
 ''' Creates list of files in the directory form argv[1]'''
 flist1 = os.listdir(sys.argv[1])
@@ -66,10 +67,11 @@ def main():
     fw_version(flist1)
     hdd_lot_status(flist1, fwversion)
     reboots(flist1)
-    connect_rtsp(flist1)
-    #compare(datedic, datedic1, timedict, timedict1)
-    #decode_error(flist1)
-    #hd_status(flist1, fwversion)
+    if 'A4' not in str(fwversion[2]):
+        connect_rtsp(flist1)
+        compare(datedic, datedic1, timedict, timedict1)
+        decode_error(flist1)
+    hd_status(flist1, fwversion)
     # exception(flist1, exception_found, datedic)
     # if len(sys.argv) > 2:
       # terms = sys.argv[2]
@@ -84,44 +86,44 @@ def fw_version(flist1):
     '''
     global fwversion
     date_value1 = [] #using to hold date time value from the log lines.
-    with open("device_info.txt", "w") as devinfo: #open file to hold the found log lines
-        for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
-            if 'syslog' in str(fname):
-                with open(fname, "r", encoding="ISO-8859-1") as file:
-                    #   print('\r', "File name is ", fname)
-                    for line in file:
-                        if "Current boot version" in line.strip():
-                            devinfo.write(line)
-                            fwholder = line.split(':')
-                            fwholder1 = fwholder[4]
-                            fwholder1 = fwholder1.strip()
-                            if fwholder1 not in fwversion:
-                                fwversion[0] = fwholder1
-                        if "Serial=" in line.strip():
-                            devinfo.write(line)
-                            fwholder = line.split('=')
-                            fwholder1 = fwholder[1]
-                            fwholder1 = fwholder1.strip()
-                            if fwholder1 not in fwversion:
-                                fwversion[1] = fwholder1
-                        if "Model=" in line.strip():
-                            devinfo.write(line)
-                            fwholder = line.split('=')
-                            fwholder1 = fwholder[1]
-                            fwholder1 = fwholder1.strip()
-                            if fwholder1 not in fwversion:
-                                fwversion[2] = fwholder1
-                        if "hdspinup" in line.strip():
-                            devinfo.write(line)
-                            fwholder1 = 'stand-alone'
-                            if fwholder1 not in fwversion:
-                                fwversion[3] = fwholder1
-                        #print("This is a stand-alone Rialto")
-                        elif "nas_mount" in line.strip():
-                            devinfo.write(line)
-                            fwholder1 = 'blade'
-                            if fwholder1 not in fwversion:
-                                fwversion[3] = fwholder1
+   # with open("device_info.txt", "w") as devinfo: #open file to hold the found log lines
+    for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
+        if 'syslog' in str(fname):
+            with open(fname, "r", encoding="ISO-8859-1") as file: #below we extract the Serial number, the Model and type of the device - blade or stand-alone
+                #   print('\r', "File name is ", fname)
+                for line in file:
+                    if "Current boot version" in line.strip():
+                       # devinfo.write(line)
+                        fwholder = line.split(':')
+                        fwholder1 = fwholder[4]
+                        fwholder1 = fwholder1.strip()
+                        if fwholder1 not in fwversion:
+                            fwversion[0] = fwholder1
+                    if "Serial=" in line.strip():
+                       # devinfo.write(line)
+                        fwholder = line.split('=')
+                        fwholder1 = fwholder[1]
+                        fwholder1 = fwholder1.strip()
+                        if fwholder1 not in fwversion:
+                            fwversion[1] = fwholder1
+                    if "Model=" in line.strip():
+                        #devinfo.write(line)
+                        fwholder = line.split('=')
+                        fwholder1 = fwholder[1]
+                        fwholder1 = fwholder1.strip()
+                        if fwholder1 not in fwversion:
+                            fwversion[2] = fwholder1
+                    if "hdspinup" in line.strip():
+                        #devinfo.write(line)
+                        fwholder1 = 'stand-alone'
+                        if fwholder1 not in fwversion:
+                            fwversion[3] = fwholder1
+                    #print("This is a stand-alone Rialto")
+                    elif "nas_mount" in line.strip():
+                       # devinfo.write(line)
+                        fwholder1 = 'blade'
+                        if fwholder1 not in fwversion:
+                            fwversion[3] = fwholder1
                         
                             
     print("Firmware version: ", fwversion[0])
@@ -167,30 +169,31 @@ def searchterms(terms, flist1, found):
 def reboots(flist1):
     # date_line = []
     date_value = []
-    with open("reboots.txt", "w") as ffound:
-        for fname in flist1:
-            if 'syslog' in str(fname):
-                with open(fname, "r", encoding="ISO-8859-1") as file:
-                    #   print('\r', "File name is ", fname)
-                    for line in file:
-                        if "restart" in str.lower(line):
-                            ffound.write(line)
-                            date_line = line.split(' ') #next four lines extract the date and time from the log line.
-                            date_v1 = (date_line[0] + " " + date_line[1])
-                            date_time = line.split(' ')[1]
-                            date_date = line.split(' ')[0]
-                            if date_v1 not in date_value:
-                                date_value.append(date_v1)
-                                found.append(line)  # add the rtsp_found lines to the rtsp_found list
-                                '''
-                                add the line with time stamp (date_time) and the log line (date_line[-1]) as a sub dictionary, timestamp will be the key, date (date_date) is the key for the main dict
-                                '''
-                                datedic1.setdefault(date_date, {})[date_time] = date_line[-1]
-                                c = collections.Counter(datedic1) #not sure what I am going to use this for
+   # with open("reboots.txt", "w") as ffound:
+    for fname in flist1:
+        if 'syslog' in str(fname):
+            with open(fname, "r", encoding="ISO-8859-1") as file:
+                #   print('\r', "File name is ", fname)
+                for line in file:
+                    if "restart" in str.lower(line):
+                        #ffound.write(line)
+                        date_line = line.split(' ') #next four lines extract the date and time from the log line.
+                        date_v1 = (date_line[0] + " " + date_line[1])
+                        date_time = line.split(' ')[1]
+                        date_date = line.split(' ')[0]
+                        if date_v1 not in date_value:
+                            date_value.append(date_v1)
+                            found.append(line)  # add the rtsp_found lines to the rtsp_found list
+
+                            '''
+                            add the line with time stamp (date_time) and the log line (date_line[-1]) as a sub dictionary, timestamp will be the key, date (date_date) is the key for the main dict
+                            '''
+                            datedic1.setdefault(date_date, {})[date_time] = date_line[-1]
+                            c = collections.Counter(datedic1) #not sure what I am going to use this for
 
     print("found ", len(found), " restarts in the log files")
     date_value.sort()
-    ffound.close()
+    #ffound.close()
     #print(len(date_value))
     '''
     The part below is analysing the content of the datedict1 for various correlations
@@ -225,33 +228,33 @@ def connect_rtsp(flist1):
     ipdict = {}
     rtspip = []
     date_value1 = [] #using to hold date time value from the log lines.
-    with open("rtsp_connections.txt", "w") as ffound1: #open file to hold the found log lines
-        for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
-            if 'syslog' in str(fname):
-                with open(fname, "r", encoding="ISO-8859-1") as file:
-                    #   print('\r', "File name is ", fname)
-                    for line in file:
-                        if "connecting to rtsp" in str.lower(line):
-                            ffound1.write(line)
-                            date_line = line.split(' ') #next four lines extract the date and time from the log line.
-                            date_v1 = (date_line[0] + " " + date_line[1])
-                            date_time = line.split(' ')[1]
-                            date_date = line.split(' ')[0]
-                            #channelnum = line.split(' ')[6]
-                            if date_v1 not in date_value1:
-                                rtsp_ip = line.split('/')
-                                rtspip = rtsp_ip[2].strip()
-                                channelnum = line.split(' ')[6]
-                                #print("IP is", rtsp_ip[2])
-                                date_value1.append(date_v1)
-                                rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
-                                '''
-                                add the line with time stamp (date_time) and the log line (date_line[-1]) as a sub dictionary, timestamp will be the key, date (date_date) is the key for the main dict
-                                '''
-                                datedic.setdefault(date_date, {})[date_time] = date_line[-1]
-                                iphist[rtspip] = iphist.get(rtspip, 0) + 1
-                                ipdict.setdefault(channelnum, []).append(rtspip)
-                                c = collections.Counter(datedic) #not sure what I am going to use this for
+    #with open("rtsp_connections.txt", "w") as ffound1: #open file to hold the found log lines
+    for fname in flist1: #next three lines open the log files to be searched. Exlude health_mon logs
+        if 'syslog' in str(fname):
+            with open(fname, "r", encoding="ISO-8859-1") as file:
+                #   print('\r', "File name is ", fname)
+                for line in file:
+                    if "connecting to rtsp" in str.lower(line):
+                        #ffound1.write(line)
+                        date_line = line.split(' ') #next four lines extract the date and time from the log line.
+                        date_v1 = (date_line[0] + " " + date_line[1])
+                        date_time = line.split(' ')[1]
+                        date_date = line.split(' ')[0]
+                        #channelnum = line.split(' ')[6]
+                        if date_v1 not in date_value1:
+                            rtsp_ip = line.split('/')
+                            rtspip = rtsp_ip[2].strip()
+                            channelnum = line.split(' ')[6]
+                            #print("IP is", rtsp_ip[2])
+                            date_value1.append(date_v1)
+                            rtsp_found.append(line)  # add the rtsp_found lines to the rtsp_found list
+                            '''
+                            add the line with time stamp (date_time) and the log line (date_line[-1]) as a sub dictionary, timestamp will be the key, date (date_date) is the key for the main dict
+                            '''
+                            datedic.setdefault(date_date, {})[date_time] = date_line[-1]
+                            iphist[rtspip] = iphist.get(rtspip, 0) + 1
+                            ipdict.setdefault(channelnum, []).append(rtspip)
+                            c = collections.Counter(datedic) #not sure what I am going to use this for
                         #else:
                         #    ffound1.close()
                         #    print("This must be an Analog Rialto", '\n')
@@ -266,7 +269,7 @@ def connect_rtsp(flist1):
         ips = list(sorted(set(ip)))
         print("Channel {channel} has IP {IP}".format(channel = ch, IP = ips))
     date_value1.sort()
-    ffound1.close()
+    #ffound1.close()
     #print(len(date_value1))
 
     '''
