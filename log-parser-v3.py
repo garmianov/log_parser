@@ -1,21 +1,16 @@
-﻿#!/bin/python3
+#!/usr/bin/python3
 
-# paste-split.py - Adds Wikipedia bullet points to the start of each line of text in the clipboard
-
-# ''' should be used for the log parsing script.'''
-
-# import pyperclip
-import os
-import sys
-import pprint
-import datetime
-import collections
-import operator
-import string
-import re
 from collections import Counter
+import collections
+import datetime
+import operator
+import os
+import pprint
+import re
+import string
+import sys
 
-'''defining variables'''
+
 found = []
 lines = []
 text = []
